@@ -95,6 +95,7 @@ def logout():
 
 
 class AbstractFeatures(object):
+
     def __init__(self, *args, **kwargs):
         self.details = kwargs
         self.args = args
