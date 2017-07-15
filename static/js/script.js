@@ -1,4 +1,3 @@
-
 function signUp() {
     var username = $("#username").val();
     var email = $("#email").val();
@@ -31,17 +30,13 @@ function signUp() {
             var json = JSON.parse(response);
             swal('Success!', json.success, 'success');
             window.location.href = '/create_bucket/';
-
         },
         error: function (xhr){
             var json = JSON.parse(xhr.responseText);
             swal('Error', json.error, 'error');
             return 0;
         }
-
     })
-
-
 }
 
 function login(){
@@ -80,6 +75,7 @@ function login(){
 function createBucket(value){
     var bucket_name = $("#bucket_name").val();
     var description = $("#description").val();
+    var category = $("#category").val();
 
     if (!bucket_name){
         swal("Error!", "Please enter the bucket name", 'error');
@@ -92,16 +88,19 @@ function createBucket(value){
     }
 
     $.ajax({
-        url: '/create_bucket',
-        data: {bucket_name:bucket_name, description:description},
+        url: '/create_bucket/',
+        data: {bucket_name:bucket_name, description:description, category:category},
         type: 'POST',
         success: function(){
-            swal('Success!', 'Bucket list created successfully', 'success');
+            swal('Success!','Bucket created successfully', 'success');
             if (value === 1){
-                window.location.href = '/view_buckets';
+                window.location.href = '/view_buckets/';
             }
             else if (value === 2){
-                window.location.href = '/create_bucket';
+                window.location.href = '/create_bucket/';
+            }
+            else{
+                window.location.href = '/view_buckets/'
             }
         },
         error: function (xhr){
@@ -112,17 +111,22 @@ function createBucket(value){
     })
 }
 
-function addActivity(){
- swal("Info!", 'Working on it', 'info');
- return 0;
+function addActivity(key){
+    swal("Info", 'In progress', 'info');
+    return 0;
 }
 
-function viewActivities(){
- swal("Info!", 'Working on it', 'info');
- return 0;
+function viewActivities(key){
+    swal("Info", 'In progress', 'info');
+    return 0;
 }
 
-function deleteActivity(){
- swal("Info!", 'Working on it', 'info');
- return 0;
+function updateBucket(key){
+    swal("Info", 'In progress', 'info');
+    return 0;
+}
+
+function deleteBucket(key){
+    swal("Info", 'In progress', 'info');
+    return 0;
 }
