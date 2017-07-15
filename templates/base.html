@@ -4,11 +4,12 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>BUCKET-LIST | {{page}}</title>
+        <title>Bucket-list | {{page}}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="../static/css/vendor.css">
-        <link rel="stylesheet" href="../static/css/styles.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/animate/vendor.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/sweetalert/sweetalert.css') }}">
         {% block styles %}{% endblock %}
     </head>
 
@@ -22,16 +23,8 @@
                         </button>
                     </div>
 
-                    <div class="header-block header-block-search hidden-sm-down">
-                        <form role="search">
-                            <div class="input-container"> <i class="fa fa-search"></i> <input type="search" placeholder="Search">
-                                <div class="underline"></div>
-                            </div>
-                        </form>
-                    </div>
-
                     <div class="header-block header-block-buttons">
-                        <a href="https://github.com/modularcode/modular-admin-html" class="btn btn-sm header-btn"> <i class="fa fa-github-alt"></i> <span>View on GitHub</span> </a>
+                        <a href="https://github.com/ridgekimani/bucket_list" class="btn btn-sm header-btn"> <i class="fa fa-github-alt"></i> <span>View on GitHub</span> </a>
                     </div>
 
                     <div class="header-block header-block-nav">
@@ -44,10 +37,8 @@
                                 </a>
                                 <div class="dropdown-menu profile-dropdown-menu" aria-labelledby="dropdownMenu1">
                                     <a class="dropdown-item" href="#"> <i class="fa fa-user icon"></i> Profile </a>
-                                    <a class="dropdown-item" href="#"> <i class="fa fa-bell icon"></i> Notifications </a>
-                                    <a class="dropdown-item" href="#"> <i class="fa fa-gear icon"></i> Settings </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#"> <i class="fa fa-power-off icon"></i> Logout </a>
+                                    <a class="dropdown-item" href="{{ url_for('logout') }}"> <i class="fa fa-power-off icon"></i> Logout </a>
                                 </div>
                             </li>
                         </ul>
@@ -59,8 +50,11 @@
                 {% endblock %}
             </div>
         </div>
-        <script src="../static/js/vendor.js"></script>
-        <script src="../static/js/app.js"></script>
+        <script src="{{ url_for('static', filename='plugins/animate/vendor.js')}}"></script>
+        <script src="{{ url_for('static', filename='plugins/sweetalert/sweetalert.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/script.js')}}"></script>
         {% block scripts %}{% endblock %}
     </body>
 </html>

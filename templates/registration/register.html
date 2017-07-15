@@ -3,11 +3,12 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title> BUCKET-LIST | REGISTER </title>
+        <title> Bucket-list | Register </title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="../../static/css/vendor.css">
-        <link rel="stylesheet" href="../../static/css/style.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/animate/vendor.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/sweetalert/sweetalert.css') }}">
     </head>
 
     <body>
@@ -20,30 +21,28 @@
                         </h1>
                     </header>
                     <div class="auth-content">
-                        <form id="signup-form" action="#" method="GET" novalidate="">
+                        <form id="signup" method="POST" onsubmit="return false">
                             <div class="form-group">
                                 <label for="username">Username</label>
                                 <input type="text" class="form-control underlined" name="username" id="username" placeholder="Enter username">
                             </div>
 
                             <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" class="form-control underlined" name="email" id="email" placeholder="Enter email address">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control underlined" name="password" id="password" placeholder="Enter password">
                             </div>
 
-                            <div class="form-group"> <label for="password">Password</label>
-                                <div class="row">
-                                    <div class="col-sm-6"> <input type="password" class="form-control underlined" name="password" id="password" placeholder="Enter password"> </div>
-                                    <div class="col-sm-6"> <input type="password" class="form-control underlined" name="retype_password" id="retype_password" placeholder="Re-type password"> </div>
-                                </div>
+                            <div class="form-group">
+                                <label for="confirm_password">Confirm Password</label>
+                                <input type="password" class="form-control underlined" name="confirm_password" id="confirm_password" placeholder="Enter password">
                             </div>
                             <div class="form-group">
-                                <button type="button" class="btn btn-block btn-primary">Sign Up</button>
+                                <button type="submit" onclick="signUp()" class="btn btn-block btn-primary">Sign Up</button>
                             </div>
 
                             <div class="form-group">
                                 <p class="text-muted text-xs-center">Already have an account?
-                                    <a href="login.html">Login!</a>
+                                    <a href="{{ url_for('login') }}">Login!</a>
                                 </p>
                             </div>
                         </form>
@@ -51,8 +50,11 @@
                 </div>
             </div>
         </div>
-        <script src="../../static/js/vendor.js"></script>
-        <script src="../../static/js/script.js"></script>
+        <script src="{{ url_for('static', filename='plugins/animate/vendor.js')}}"></script>
+        <script src="{{ url_for('static', filename='plugins/sweetalert/sweetalert.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}"></script>
     </body>
 
 </html>

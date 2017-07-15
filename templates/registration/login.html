@@ -3,11 +3,12 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title> BUCKET-LIST | LOGIN </title>
+        <title> Bucket-list | Login </title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="../../static/css/vendor.css">
-        <link rel="stylesheet" href="../../static/css/style.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/animate/vendor.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/sweetalert/sweetalert.css') }}">
     </head>
 
     <body>
@@ -21,22 +22,22 @@
                     </header>
                     <div class="auth-content">
                         <p class="text-xs-center">LOGIN TO CONTINUE</p>
-                        <form id="login-form" action="#" method="GET" novalidate="">
+                        <form id="login-form" method="POST" onsubmit="return false">
                             <div class="form-group">
                                 <label for="username">Username</label>
-                                <input type="email" class="form-control underlined" name="username" id="username" placeholder="Your email address" required>
+                                <input type="text" class="form-control underlined" name="username" id="username" placeholder="Your Username" required>
                             </div>
                             <div class="form-group">
                                 <label for="password">Password</label>
-                                <input type="password" class="form-control underlined" name="password" id="password" placeholder="Your password" required>
+                                <input type="password" class="form-control underlined" name="password" id="password" placeholder="Your Password" required>
                             </div>
 
                             <div class="form-group">
-                                <button type="submit" class="btn btn-block btn-primary">Login</button>
+                                <button type="submit" onclick="login()" class="btn btn-block btn-primary">Login</button>
                             </div>
                             <div class="form-group">
                                 <p class="text-muted text-xs-center">Do not have an account?
-                                    <a href="#">Sign Up!</a>
+                                    <a href="{{ url_for('register') }}">Sign Up!</a>
                                 </p>
                             </div>
                         </form>
@@ -45,7 +46,10 @@
             </div>
         </div>
 
-        <script src="../../static/js/vendor.js"></script>
-        <script src="../../static/js/app.js"></script>
+        <script src="{{ url_for('static', filename='plugins/animate/vendor.js')}}"></script>
+        <script src="{{ url_for('static', filename='plugins/sweetalert/sweetalert.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}"></script>
     </body>
 </html>
