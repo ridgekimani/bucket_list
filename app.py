@@ -1,5 +1,6 @@
 import os
 import shelve
+import uuid
 
 from flask import request, render_template, Flask, jsonify, make_response, redirect, session
 
@@ -18,9 +19,20 @@ db = shelve.open(os.path.join(app.root_path, app.config['SHELVE_DB']), writeback
 app.secret_key = 'this is a secret'
 
 
+categories = [
+    {'1': 'Travel'},
+    {'2': 'Health'},
+    {'3': 'Wealth'},
+    {'4': 'Career'},
+    {'5': 'Relationship'},
+    {'6': 'Self Growth'},
+    {'7': 'General'}
+]
+
+
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('base.html')
+    return redirect('/login/')
 
 
 @app.route('/register/', methods=['GET', 'POST'])
@@ -91,6 +103,7 @@ class AbstractFeatures(object):
         self.username = None
         self.bucket_name = None
         self.description = None
+        self.category = None
         self.bucket = False
         self.activity = False
         self.filtered = None
@@ -104,7 +117,7 @@ class AbstractFeatures(object):
     def _create_data(self):
         def add_bucket():
             values = dict(user=self.username, bucket_name=self.bucket_name, description=self.description,
-                          created=date.today())
+                          category=self.category, created=date.today(), key=uuid.uuid4())
 
             if 'buckets' in db.keys():
                 db['buckets'].append(values)
@@ -123,11 +136,23 @@ class AbstractFeatures(object):
             return add_activity()
 
     def _read_data(self):
-        try:
-            self.filtered = [item for item in db['buckets'] if item['user'] == self.username]
-            return self.filtered
+        def read_buckets():
+            try:
+                self.filtered = [item for item in db['buckets'] if item['user'] == self.username]
+                return self.filtered
 
-        except KeyError:
+            except KeyError:
+                return []
+
+        def read_activities():
+            pass
+
+        if self.bucket:
+            return read_buckets()
+
+        elif self.activity:
+            return read_activities()
+        else:
             return False
 
     def _update_data(self):
@@ -165,7 +190,7 @@ class CreateBucket(AbstractFeatures, View):
 
         def get():
             if 'user' in session.keys() and 'user' in session.keys() is not None:
-                return render_template('create_bucket.html', page='Create Bucket')
+                return render_template('create_bucket.html', page='Create Bucket', data=categories)
             else:
                 return redirect('/login/')
 
@@ -174,21 +199,28 @@ class CreateBucket(AbstractFeatures, View):
             data = request.form.to_dict()
             bucket_name = data.get('bucket_name')
             description = data.get('description')
-            category = data.get('category')
+            value = data.get('category')
+            category = ''
+
+            for category_ in categories:
+                for key, val in category_.items():
+                    if key == value:
+                        category = val
+
             data = dict(bucket=True, username=username, bucket_name=bucket_name, category=category,
                         description=description)
             response = self.create_data(**data)
             if response.message:
-                return make_response(jsonify({'success': 'Bucket Created successfully'}))
+                return make_response(jsonify({'success': 'Bucket Created successfully'}), 200)
+
+            else:
+                return make_response(jsonify({'error': self.error_message}), 500)
 
         if request.method == 'GET':
             return get()
 
         elif request.method == 'POST':
             return post()
-
-        else:
-            return get()
 
 
 class ViewBucket(AbstractFeatures, View):
@@ -202,8 +234,9 @@ class ViewBucket(AbstractFeatures, View):
                 new_details = {}
                 for i, d in enumerate(details):
                     new_details[i] = d
-                return render_template('view_bucket.html', details=new_details, data=True, page='View Buckets')
-            return render_template('view_bucket.html', data=False, page='View Buckets')
+                return render_template('view_buckets.html', details=new_details, data=True,
+                                       page='View Buckets')
+            return render_template('view_buckets.html', data=False, page='View Buckets')
         else:
             return redirect('/login/')
 
