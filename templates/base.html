@@ -4,11 +4,12 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>BUCKET-LIST | {{page}}</title>
+        <title><Bucket_List></Bucket_List> | {{page}}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="../static/css/vendor.css">
-        <link rel="stylesheet" href="../static/css/styles.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/animate/vendor.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/sweetalert/sweetalert.css') }}">
         {% block styles %}{% endblock %}
     </head>
 
@@ -31,7 +32,7 @@
                     </div>
 
                     <div class="header-block header-block-buttons">
-                        <a href="https://github.com/modularcode/modular-admin-html" class="btn btn-sm header-btn"> <i class="fa fa-github-alt"></i> <span>View on GitHub</span> </a>
+                        <a href="https://github.com/ridgekimani/bucket_list" class="btn btn-sm header-btn"> <i class="fa fa-github-alt"></i> <span>View on GitHub</span> </a>
                     </div>
 
                     <div class="header-block header-block-nav">
@@ -59,8 +60,10 @@
                 {% endblock %}
             </div>
         </div>
-        <script src="../static/js/vendor.js"></script>
-        <script src="../static/js/app.js"></script>
+        <script src="{{ url_for('static', filename='plugins/animate/vendor.js')}}"></script>
+        <script src="{{ url_for('static', filename='plugins/sweetalert/sweetalert.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
         {% block scripts %}{% endblock %}
     </body>
 </html>
