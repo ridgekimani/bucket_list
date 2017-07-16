@@ -8,5 +8,5 @@ env:
   - FLASK=0.12.2
 install:
   - pip install Flask==$FLASK
-  - pip install requirements.txt
+  - pip install -r requirements.txt
 
