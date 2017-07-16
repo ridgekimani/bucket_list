@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<article class="content item-editor-page">
+    <div class="title-block">
+        <h3 class="title"> Update item
+            <span class="sparkline bar" data-type="bar"></span>
+        </h3>
+    </div>
+
+    <form name="item" method="post" onsubmit="return false">
+        <div class="card card-block">
+            {% for value in data.values() %}
+            {% for key, val in value.items() %}
+            {% if key == 'bucket_name' %}
+            <div class="form-group row">
+                <label class="col-sm-2 form-control-label text-xs-right">
+                    Name:
+                </label>
+
+                <div class="col-sm-10">
+                    <input type="text" value="{{ val }}" id="bucket_name" class="form-control boxed" placeholder="">
+                </div>
+            </div>
+            {% elif key == 'description' %}
+            <div class="form-group row">
+                <label class="col-sm-2 form-control-label text-xs-right">
+                    Description:
+                </label>
+
+                <div class="col-sm-10">
+                    <input type="text" value="{{ val }}" id="description" class="form-control boxed" placeholder="">
+                </div>
+            </div>
+
+            {% elif key == 'category' %}
+            <div class="form-group row">
+                <label class="col-sm-2 form-control-label text-xs-right">
+                    Category:
+                </label>
+                <div class="col-sm-10">
+                    <select class="c-select form-control boxed" id="category">
+                    {% for category in categories %}
+                        {% for key, value in category.items() %}
+                            {% if value == val %}
+                                <option selected value="{{ key }}">{{ val }}</option>
+                            {% else %}
+                                <option value="{{ key }}">{{ value }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                    </select>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% endfor %}
+
+            <div class="col-sm-10 col-sm-offset-2">
+                <button type="submit" onclick="updateBucket('{{ unique_key }}')" class="btn btn-primary">
+                    Update
+                </button>
+            </div>
+
+        </div>
+    </form>
+</article>
+{% endblock %}
