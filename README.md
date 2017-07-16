@@ -1,5 +1,6 @@
 # Bucket List
 This  your everyday bucket list, a place to keep and discover things that will enrich your life.
+[![Build Status](https://travis-ci.org/ridgekimani/bucket_list.svg?branch=master)](https://travis-ci.org/ridgekimani/bucket_list)
 
 ### How to set up the project on Unix environments
   #### Downloading the project and installing required packages
