@@ -96,6 +96,23 @@ def logout():
 
 class AbstractFeatures(object):
 
+    """
+    This mixin class is used for most OOP functionality that will be used within the app
+    This methods include:
+     1. Create data for both buckets and activities
+     2. Read data and return the data in a particular format for buckets and activities
+     3. Delete Data for the buckets and activities
+    It contains some accessor methods that can be used when subclassing this class
+
+    Usage:
+     from flask.views import View
+
+     class CreateBucketView(AbstractFeatures, View):
+        def dispatch(self, *args, **kwargs):
+          return self.create_data(*args, **kwargs)
+
+    """
+
     def __init__(self, *args, **kwargs):
         self.details = kwargs
         self.args = args
@@ -108,17 +125,31 @@ class AbstractFeatures(object):
         self.bucket = False
         self.activity = False
         self.filtered = None
+        self.key = None
         self.initialize()
 
     def initialize(self):
+        """
+        Maps arguments to keyword arguments and assigns the values to the attributes with the same name
+        when the __init__ method is called
+        :return: dict values
+        """
         map(lambda x: self.details.update(dict(x, )), self.args)
         for key, value in self.details.items():
             setattr(self, key, value)
 
     def _create_data(self):
+        """
+        This private method is used to create data for both buckets and activities
+        This method contains two methods, add_bucket and add_activity and the correct functionality is
+        used when specifying if its a bucket or activity as an argument
+        :return:
+        """
         def add_bucket():
+            x = uuid.uuid4()
+            key = str(x)[:8]
             values = dict(user=self.username, bucket_name=self.bucket_name, description=self.description,
-                          category=self.category, created=date.today(), key=uuid.uuid4())
+                          category=self.category, created=date.today(), key=key)
 
             if 'buckets' in db.keys():
                 db['buckets'].append(values)
@@ -137,6 +168,10 @@ class AbstractFeatures(object):
             return add_activity()
 
     def _read_data(self):
+        """
+        Used to read buckets and activities of the current user
+        :return: list of dictionaries containing this data
+        """
         def read_buckets():
             try:
                 self.filtered = [item for item in db['buckets'] if item['user'] == self.username]
@@ -157,10 +192,74 @@ class AbstractFeatures(object):
             return False
 
     def _update_data(self):
-        pass
+        """
+        Used to update data from buckets and activities
+        :return: updated data
+        """
+        def update_bucket():
+            bucket = [item for item in db['buckets'] if item['key'] == self.key]
+            new_details = {}
+            for i, d in enumerate(bucket):
+                new_details[i] = d
+
+            for values in new_details.values():
+                values['bucket_name'] = self.bucket_name
+                values['description'] = self.description
+                values['category'] = self.category
+
+            db.sync()
+            self.message = 'Bucket updated successfully'
+            return self
+
+        def update_activity():
+            return self
+
+        if self.bucket:
+            return update_bucket()
+
+        if self.activity:
+            return update_activity()
 
     def _delete_data(self):
-        pass
+
+        def delete_bucket():
+            db['buckets'] = [item for item in db['buckets'] if item['key'] != self.key]
+            db.sync()
+            self.message = 'Bucket deleted successfully'
+            return self
+
+        def delete_activity():
+            self.message = 'Activity successfully deleted'
+            return self
+
+        if self.bucket:
+            return delete_bucket()
+
+        if self.activity:
+            return delete_activity()
+
+    def _get_specific_data(self):
+        """
+        This method is used to get specific data unit given the key and the username
+        It is used while creating a bucket activity or updating the bucket
+        :return:
+        """
+        def get_bucket():
+            try:
+                self.filtered = [item for item in db['buckets']
+                                 if item['user'] == self.username and item['key'] == self.key]
+
+                return self.filtered
+
+            except KeyError:
+                return []
+
+        if self.bucket:
+            return get_bucket()
+
+    # *********************************
+
+    # *** ACCESSOR METHODS *****
 
     @staticmethod
     def create_data(*args, **kwargs):
@@ -181,6 +280,11 @@ class AbstractFeatures(object):
     def delete_data(*args, **kwargs):
         data = AbstractFeatures(*args, **kwargs)
         return data._delete_data()
+
+    @staticmethod
+    def get_specific_data(*args, **kwargs):
+        data = AbstractFeatures(*args, **kwargs)
+        return data._get_specific_data()
 
 
 class CreateBucket(AbstractFeatures, View):
@@ -243,20 +347,120 @@ class ViewBucket(AbstractFeatures, View):
 
 
 class UpdateBucket(AbstractFeatures, View):
+
+    methods = ['GET', 'POST']
+
+    def dispatch_request(self):
+
+        def get():
+            unique_key = request.args.get('key')
+
+            if not unique_key:
+                return redirect('/view_buckets/')
+
+            if 'user' in session.keys() and 'user' in session.keys() is not None:
+                data = self.get_specific_data(key=unique_key, username=session.get('user'), bucket=True)
+                if data:
+                    new_details = {}
+                    for i, d in enumerate(data):
+                        new_details[i] = d
+
+                    return render_template('update_bucket.html', page='Update Bucket', data=new_details,
+                                           categories=categories, unique_key=unique_key)
+            else:
+                return redirect('/login/')
+
+        def post():
+            username = session.get('user')
+            data = request.form.to_dict()
+            bucket_name = data.get('bucket_name')
+            description = data.get('description')
+            value = data.get('category')
+            unique_key = data.get('key')
+            category = ''
+
+            for category_ in categories:
+                for key, val in category_.items():
+                    if key == value:
+                        category = val
+
+            data = dict(bucket=True, username=username, bucket_name=bucket_name, category=category, key=unique_key,
+                        description=description)
+
+            response = self.update_data(**data)
+
+            if response.message:
+                return make_response(jsonify({'success': 'Bucket Updated successfully'}), 200)
+
+            else:
+                return make_response(jsonify({'error': self.error_message}), 500)
+
+        if request.method == 'GET':
+            return get()
+
+        elif request.method == 'POST':
+            return post()
+
+
+class AddActivity(AbstractFeatures, View):
     methods = ['GET', 'POST']
 
     def dispatch_request(self):
         pass
 
 
-class AddActivities(AbstractFeatures, View):
+class ViewActivities(AbstractFeatures, View):
+    methods = ['GET']
+
+    def dispatch_request(self):
+        pass
+
+
+class UpdateActivity(AbstractFeatures, View):
     methods = ['GET', 'POST']
 
     def dispatch_request(self):
         pass
+
+
+class DeleteData(AbstractFeatures, View):
+
+    methods = ['POST']
+
+    def dispatch_request(self):
+        data = request.form.to_dict()
+        key = data.get('key')
+        bucket = data.get('bucket')
+        activity = data.get('activity')
+
+        if not key:
+            return make_response(jsonify({'error': 'Please select a specific bucket or activity'}), 500)
+
+        def delete_bucket():
+            values = dict(key=key, bucket=True)
+            response = self.delete_data(**values)
+
+            if response.message:
+                return make_response(jsonify({'success': 'Bucket deleted successfully'}))
+
+        def delete_activity():
+            values = dict(key=key, activity=True)
+            response = self.delete_data(**values)
+
+            if response.message:
+                return make_response(jsonify({'success': response.message}))
+
+        if bucket == 'true':
+            return delete_bucket()
+
+        if activity == 'true':
+            return delete_activity()
 
 
 app.add_url_rule('/create_bucket/', view_func=CreateBucket.as_view('create_bucket'))
 app.add_url_rule('/view_buckets/', view_func=ViewBucket.as_view('view_buckets'))
 app.add_url_rule('/update_bucket/', view_func=UpdateBucket.as_view('update_bucket'))
-app.add_url_rule('/add_activities/', view_func=AddActivities.as_view('add_activities'))
+app.add_url_rule('/add_activity/', view_func=AddActivity.as_view('add_activity'))
+app.add_url_rule('/view_activities/', view_func=ViewActivities.as_view('view_activities'))
+app.add_url_rule('/update_activity/', view_func=UpdateActivity.as_view('update_activity'))
+app.add_url_rule('/delete/', view_func=DeleteData.as_view('delete_data'))
