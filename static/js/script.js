@@ -111,22 +111,64 @@ function createBucket(value){
     })
 }
 
-function addActivity(key){
-    swal("Info", 'In progress', 'info');
-    return 0;
-}
-
-function viewActivities(key){
-    swal("Info", 'In progress', 'info');
-    return 0;
+function updateBucketUrl(key){
+ window.location.href = '/update_bucket/?key=' + key;
 }
 
 function updateBucket(key){
-    swal("Info", 'In progress', 'info');
-    return 0;
+    var bucket_name = $("#bucket_name").val();
+    var description = $("#description").val();
+    var category = $("#category").val();
+
+    if (!bucket_name){
+        swal("Error!", 'Please enter your bucket name', 'error');
+        return 0;
+    }
+    if (!description){
+        swal('Error!', 'Please enter a short description', 'error');
+        return 0
+    }
+
+    $.ajax({
+        url: '/update_bucket/',
+        data: {bucket_name:bucket_name, description:description, category:category, key:key},
+        type: 'POST',
+        dataType: 'text',
+        success: function (response) {
+            var json = JSON.parse(response);
+            swal("Success", json.success, 'success');
+            window.location.href = '/view_buckets/'
+        },
+        error: function (xhr) {
+            var json = JSON.parse(xhr.responseText);
+            swal("Error!", json.error, 'error');
+            return 0;
+        }
+    })
 }
 
 function deleteBucket(key){
-    swal("Info", 'In progress', 'info');
-    return 0;
+    if (! key){
+        swal("Please select a specific bucket to delete");
+        return 0;
+    }
+
+    $.ajax({
+        url: '/delete/',
+        data: {key:key, bucket:true},
+        type: 'POST',
+        dataType: 'text',
+        success: function (response) {
+            var json = JSON.parse(response);
+            swal('Success!', json.success, 'success');
+            window.location.href = '/view_buckets/'
+        },
+        error: function (xhr) {
+            var json = JSON.parse(xhr.responseText);
+            swal("Error!", json.error, 'error');
+            return 0;
+        }
+    });
 }
+
+

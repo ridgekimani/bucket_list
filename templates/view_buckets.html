@@ -47,9 +47,14 @@
                                                     <td>{{ item }}</td>
 
                                                 {% elif value == 'key' %}
+
+                                                    <div style="display: none">
+                                                        <input type="hidden" name="key" id="key" hidden value="{{ item }}">
+                                                    </div>
+
                                                     <td class="center"><button type="button" onclick="addActivity('{{ item }}')" class="btn btn-success-outline btn-sm">Add</button></td>
                                                     <td class="center" ><button type="button" onclick="viewActivities('{{ item }}')" class="btn btn-success-outline btn-sm">View</button> </td>
-                                                    <td class="center" ><button type="button" onclick="updateBucket('{{ item }}')" class="btn btn-success-outline btn-sm">Update</button></td>
+                                                    <td class="center" ><button type="button" onclick="updateBucketUrl('{{ item }}')" class="btn btn-success-outline btn-sm">Update</button></td>
                                                     <td class="center"><button type="button" onclick="deleteBucket('{{ item }}')" class="btn btn-danger-outline btn-sm">Delete</button></td>
                                                 {% endif %}
                                             {% endfor %}
