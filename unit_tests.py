@@ -12,7 +12,6 @@ class TestLoginTestCases(TestCase):
 
     def create_app(self):
         db['test_username'] = 'test_password'
-        self.db = db
         return app
 
     def test_home_page_redirect(self):
@@ -74,7 +73,6 @@ class TestSignUpTestCases(TestCase):
 
     def create_app(self):
         db['test_username'] = 'test_password'
-        self.db = db
         return app
 
     def test_signup_get_request(self):
