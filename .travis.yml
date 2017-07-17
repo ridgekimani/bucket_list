@@ -4,8 +4,13 @@ python:
   - 2.7
   - 3.5
   - 3.6
+
 env:
   - FLASK=0.12.2
+
+virtualenv:
+  system_site_packages: true
+
 install:
   - pip install Flask==$FLASK
   - pip install -r requirements.txt
