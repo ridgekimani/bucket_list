@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{{ url_for('static', filename='plugins/animate/vendor.css')}}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/sweetalert/sweetalert.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/sweetalert2/sweetalert2.css') }}">
     </head>
 
     <body>
@@ -24,12 +24,12 @@
                         <p class="text-xs-center">LOGIN TO CONTINUE</p>
                         <form id="login-form" method="POST" onsubmit="return false">
                             <div class="form-group">
-                                <label for="username">Username</label>
-                                <input type="text" class="form-control underlined" name="username" id="username" placeholder="Your Username" required>
+                                <label for="email">Email Address</label>
+                                <input type="email" class="form-control underlined" name="email" id="email" placeholder="Your Email address">
                             </div>
                             <div class="form-group">
                                 <label for="password">Password</label>
-                                <input type="password" class="form-control underlined" name="password" id="password" placeholder="Your Password" required>
+                                <input type="password" class="form-control underlined" name="password" id="password" placeholder="Your Password">
                             </div>
 
                             <div class="form-group">
@@ -47,7 +47,8 @@
         </div>
 
         <script src="{{ url_for('static', filename='plugins/animate/vendor.js')}}"></script>
-        <script src="{{ url_for('static', filename='plugins/sweetalert/sweetalert.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='plugins/sweetalert2/sweetalert2.common.js') }}"></script>
+        <script src="{{ url_for('static', filename='plugins/sweetalert2/sweetalert2.js') }}"></script>
         <script src="{{ url_for('static', filename='js/app.js') }}"></script>
         <script src="{{ url_for('static', filename='js/script.js') }}"></script>
         <script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}"></script>
