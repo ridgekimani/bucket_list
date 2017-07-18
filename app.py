@@ -221,7 +221,6 @@ class AbstractFeatures(object):
 
         def delete_bucket():
             db['buckets'] = [item for item in db['buckets'] if item['key'] != self.key]
-            db.sync()
             self.message = 'Bucket deleted successfully'
             return self
 
@@ -403,7 +402,27 @@ class AddActivity(AbstractFeatures, View):
     methods = ['GET', 'POST']
 
     def dispatch_request(self):
-        pass
+        def get():
+            unique_key = request.args.get('key')
+            print(unique_key)
+
+            if not unique_key:
+                return redirect('/view_buckets/')
+
+            if 'user' in session.keys() and 'user' in session.keys() is not None:
+                return render_template('add_activities.html', page='Create Activity', data=categories)
+            else:
+                return redirect('/login/')
+
+        def post():
+            pass
+
+        if request.method == 'GET':
+            return get()
+
+        if request.method == 'POST':
+            return post()
+
 
 
 class ViewActivities(AbstractFeatures, View):
