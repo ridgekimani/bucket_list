@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<article class="content item-editor-page">
+    <div class="title-block">
+        <h3 class="title"> Update Activity
+            <span class="sparkline bar" data-type="bar"></span>
+        </h3>
+    </div>
+
+    <div style="display:none;">
+        <input type="hidden" id="key" value={{ unique_key }}>
+    </div>
+
+    <div style="display:none;">
+        <input type="hidden" id="activity_key" value={{ activity_key }}>
+    </div>
+
+    <form name="item" method="post" onsubmit="return false">
+        <div class="card card-block">
+            {% for value in data.values() %}
+            {% for key, val in value.items() %}
+            {% if key == 'description' %}
+            <div class="form-group row">
+                <label class="col-sm-2 form-control-label text-xs-right">Description</label>
+                <div class="col-sm-10">
+                    <div class="wyswyg">
+                        <div class="editor" id="div_description"> {{ val }} </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% endfor %}
+
+            <div class="col-sm-10 col-sm-offset-2">
+                <button type="submit" onclick="updateActivity()" class="btn btn-primary">
+                    Update
+                </button>
+            </div>
+
+        </div>
+    </form>
+</article>
+
+{% endblock %}

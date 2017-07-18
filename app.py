@@ -37,15 +37,21 @@ def register():
 
     if request.method == 'POST':
         data = request.form.to_dict()
-        username = data.get('username')
+        username = data.get('email')
         password = data.get('password')
         confirm_password = data.get('confirm_password')
 
         if not username:
-            return make_response(jsonify({'error': 'Please enter your username'}), 500)
+            return make_response(jsonify({'error': 'Please enter your email'}), 500)
+
+        if len(username) < 5:
+            return make_response(jsonify({'error': 'Username too short. Please enter more than 4 characters'}), 500)
 
         if not password:
             return make_response(jsonify({'error': 'Please enter your password'}), 500)
+
+        if len(password) < 8:
+            return make_response(jsonify({'error': 'Please enter more than 8 characters for your password'}), 500)
 
         if not confirm_password:
             return make_response(jsonify({'error': 'Please confirm your password'}), 500)
@@ -68,7 +74,7 @@ def login():
 
     if request.method == 'POST':
         data = request.form.to_dict()
-        username = data.get('username')
+        username = data.get('email')
         password = data.get('password')
 
         if username not in db.keys():
@@ -82,11 +88,8 @@ def login():
                 else:
                     return make_response(jsonify({'error': 'Incorrect password'}), 500)
 
-            else:
-                return make_response(jsonify({'error': 'Username not found. Please sign up to continue'}), 500)
 
-
-@app.route('/logout/', methods=['GET', 'POST'])
+@app.route('/logout/', methods=['GET'])
 def logout():
     session.pop('user', None)
     return redirect('/login/')
@@ -122,8 +125,9 @@ class AbstractFeatures(object):
         self.category = None
         self.bucket = False
         self.activity = False
-        self.filtered = None
+        self.filtered = []
         self.key = None
+        self.activity_key = None
         self.initialize()
 
     def initialize(self):
@@ -157,6 +161,18 @@ class AbstractFeatures(object):
             return self
 
         def add_activity():
+            x = uuid.uuid4()
+            key = str(x)[:8]
+            values = dict(user=self.username, description=self.description,  created=date.today(),  activity_key=key,
+                          key=self.key)
+
+            if 'activities' in db.keys():
+                db['activities'].append(values)
+
+            else:
+                db['activities'] = [values]
+
+            self.message = 'Data created successfully'
             return self
 
         if self.bucket:
@@ -179,7 +195,27 @@ class AbstractFeatures(object):
                 return []
 
         def read_activities():
-            pass
+            try:
+                self.filtered = [item for item in db['activities']
+                                 if item['user'] == self.username and item['key'] == self.key]
+
+                x = self.get_specific_data(bucket=True, username=self.username, key=self.key)
+
+                new_details = {}
+                for i, d in enumerate(x):
+                    new_details[i] = d
+
+                val = ''
+                for value in new_details.values():
+                    for key, val in value.items():
+                        if key == 'bucket_name':
+                            break
+
+                self.bucket_name = val
+                return self.filtered, self.bucket_name
+
+            except KeyError:
+                return []
 
         if self.bucket:
             return read_buckets()
@@ -209,6 +245,17 @@ class AbstractFeatures(object):
             return self
 
         def update_activity():
+            activity = [item for item in db['activities']
+                        if item['key'] == self.key and item['activity_key'] == self.activity_key]
+
+            new_details = {}
+            for i, d in enumerate(activity):
+                new_details[i] = d
+
+            for values in new_details.values():
+                values['description'] = self.description
+
+            self.message = 'Activity updated successfully'
             return self
 
         if self.bucket:
@@ -221,11 +268,15 @@ class AbstractFeatures(object):
 
         def delete_bucket():
             db['buckets'] = [item for item in db['buckets'] if item['key'] != self.key]
-            db.sync()
+            db['activities'] = [item for item in db['activities'] if item['key'] != self.key]
+
             self.message = 'Bucket deleted successfully'
             return self
 
         def delete_activity():
+            db['activities'] = [item for item in db['activities']
+                                if item['key'] != self.key and item['activity_key'] != self.activity_key]
+
             self.message = 'Activity successfully deleted'
             return self
 
@@ -251,8 +302,21 @@ class AbstractFeatures(object):
             except KeyError:
                 return []
 
+        def get_activity():
+            try:
+                self.filtered = [item for item in db['activities'] if item['user'] == self.username and
+                                 item['key'] == self.key and item['activity_key'] == self.activity_key]
+
+                return self.filtered
+
+            except KeyError:
+                return []
+
         if self.bucket:
             return get_bucket()
+
+        if self.activity:
+            return get_activity()
 
     # *********************************
 
@@ -298,6 +362,10 @@ class CreateBucket(AbstractFeatures, View):
 
         def post():
             username = session.get('user')
+
+            if not username:
+                return redirect('/login/')
+
             data = request.form.to_dict()
             bucket_name = data.get('bucket_name')
             description = data.get('description')
@@ -369,6 +437,10 @@ class UpdateBucket(AbstractFeatures, View):
 
         def post():
             username = session.get('user')
+
+            if not username:
+                return redirect('/login/')
+
             data = request.form.to_dict()
             bucket_name = data.get('bucket_name')
             description = data.get('description')
@@ -400,24 +472,108 @@ class UpdateBucket(AbstractFeatures, View):
 
 
 class AddActivity(AbstractFeatures, View):
-    methods = ['GET', 'POST']
+    methods = ['POST']
 
     def dispatch_request(self):
-        pass
+        username = session.get('user')
+
+        if not username:
+            return redirect('/login/')
+
+        data = request.form.to_dict()
+        unique_key = data.get('key')
+        description = data.get('text')
+        if not unique_key:
+            return make_response(jsonify({'error': 'Please select a specific bucket'}), 500)
+
+        if not description:
+            return make_response(jsonify({'error': 'Please enter your activities'}), 500)
+
+        data = dict(activity=True, username=username, description=description, key=unique_key )
+
+        response = self.create_data(**data)
+        if response.message:
+            return make_response(jsonify({'success': 'Activity added successfully'}))
 
 
 class ViewActivities(AbstractFeatures, View):
     methods = ['GET']
 
     def dispatch_request(self):
-        pass
+        key = request.args.get('key')
+        if not key:
+            return redirect('/view_buckets/')
+
+        if 'user' in session.keys() and 'user' in session.keys() is not None:
+            try:
+                details, bucket_name = self.read_data(username=session.get('user'), activity=True, key=key)
+                new_details = {}
+                for i, d in enumerate(details):
+                    new_details[i] = d
+
+                return render_template('view_activities.html', details=new_details, data=True, page='View Buckets',
+                                       bucket=bucket_name)
+
+            except ValueError:
+                return render_template('view_activities.html', data=False, page='View Buckets')
+        else:
+            return redirect('/login/')
 
 
 class UpdateActivity(AbstractFeatures, View):
     methods = ['GET', 'POST']
 
     def dispatch_request(self):
-        pass
+        def get():
+            unique_key = request.args.get('key')
+
+            if not unique_key or len(unique_key) != 16:
+                return redirect('/view_buckets/')
+
+            key = unique_key[:8]
+            activity_key = unique_key[8:]
+
+            if 'user' in session.keys() and 'user' in session.keys() is not None:
+                data = self.get_specific_data(key=key, username=session.get('user'), activity=True,
+                                              activity_key=activity_key)
+                if data:
+                    new_details = {}
+                    for i, d in enumerate(data):
+                        new_details[i] = d
+
+                    return render_template('update_activity.html', page='Update Activity', data=new_details,
+                                           unique_key=key, activity_key=activity_key)
+                else:
+                    return render_template('update_activity.html', page='Update Activity')
+            else:
+                return redirect('/login/')
+
+        def post():
+            username = session.get('user')
+
+            if not username:
+                return redirect('/login/')
+
+            data = request.form.to_dict()
+            key = data.get('key')
+            description = data.get('description')
+            activity_key = data.get('activity_key')
+
+            data = dict(activity=True, username=username, key=key, description=description, activity_key=activity_key)
+
+            response = self.update_data(**data)
+
+            if response.message:
+                return make_response(jsonify({'success': 'Activity Updated successfully'}), 200)
+
+            else:
+                return make_response(jsonify({'error': self.error_message}), 500)
+
+        if request.method == 'GET':
+            return get()
+
+        elif request.method == 'POST':
+            return post()
 
 
 class DeleteData(AbstractFeatures, View):
@@ -425,10 +581,16 @@ class DeleteData(AbstractFeatures, View):
     methods = ['POST']
 
     def dispatch_request(self):
+        username = session.get('user')
+
+        if not username:
+            return redirect('/login/')
+
         data = request.form.to_dict()
         key = data.get('key')
         bucket = data.get('bucket')
         activity = data.get('activity')
+        activity_key = data.get('activity_key')
 
         if not key:
             return make_response(jsonify({'error': 'Please select a specific bucket or activity'}), 500)
@@ -441,7 +603,7 @@ class DeleteData(AbstractFeatures, View):
                 return make_response(jsonify({'success': 'Bucket deleted successfully'}))
 
         def delete_activity():
-            values = dict(key=key, activity=True)
+            values = dict(key=key, activity=True, activity_key=activity_key)
             response = self.delete_data(**values)
 
             if response.message:
