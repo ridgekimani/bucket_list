@@ -88,11 +88,8 @@ def login():
                 else:
                     return make_response(jsonify({'error': 'Incorrect password'}), 500)
 
-            else:
-                return make_response(jsonify({'error': 'Username not found. Please sign up to continue'}), 500)
 
-
-@app.route('/logout/', methods=['GET', 'POST'])
+@app.route('/logout/', methods=['GET'])
 def logout():
     session.pop('user', None)
     return redirect('/login/')
@@ -365,6 +362,10 @@ class CreateBucket(AbstractFeatures, View):
 
         def post():
             username = session.get('user')
+
+            if not username:
+                return redirect('/login/')
+
             data = request.form.to_dict()
             bucket_name = data.get('bucket_name')
             description = data.get('description')
@@ -436,6 +437,10 @@ class UpdateBucket(AbstractFeatures, View):
 
         def post():
             username = session.get('user')
+
+            if not username:
+                return redirect('/login/')
+
             data = request.form.to_dict()
             bucket_name = data.get('bucket_name')
             description = data.get('description')
@@ -471,6 +476,10 @@ class AddActivity(AbstractFeatures, View):
 
     def dispatch_request(self):
         username = session.get('user')
+
+        if not username:
+            return redirect('/login/')
+
         data = request.form.to_dict()
         unique_key = data.get('key')
         description = data.get('text')
@@ -541,6 +550,10 @@ class UpdateActivity(AbstractFeatures, View):
 
         def post():
             username = session.get('user')
+
+            if not username:
+                return redirect('/login/')
+
             data = request.form.to_dict()
             key = data.get('key')
             description = data.get('description')
@@ -568,6 +581,11 @@ class DeleteData(AbstractFeatures, View):
     methods = ['POST']
 
     def dispatch_request(self):
+        username = session.get('user')
+
+        if not username:
+            return redirect('/login/')
+
         data = request.form.to_dict()
         key = data.get('key')
         bucket = data.get('bucket')
