@@ -21,5 +21,6 @@ This  your everyday bucket list, a place to keep and discover things that will e
             >>> import flask
             >>> print (flask.__version__)
             '0.12.2'            
-      12. Run tests using ~$ python tests/unit_tests.py
+      12. Run tests using ~$  python -m unittest unit_tests.py 
+
      

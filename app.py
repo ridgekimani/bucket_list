@@ -1,5 +1,3 @@
-import os
-import shelve
 import uuid
 
 from flask import request, render_template, Flask, jsonify, make_response, redirect, session
@@ -10,14 +8,11 @@ from datetime import date
 
 app = Flask(__name__)
 
-SHELVE_DB = 'bucket_list_db'
-
 app.config.from_object(__name__)
-
-db = shelve.open(os.path.join(app.root_path, app.config['SHELVE_DB']), writeback=True)
 
 app.secret_key = 'this is a secret'
 
+db = dict()
 
 categories = [
     {'1': 'Travel'},
@@ -51,6 +46,9 @@ def register():
 
         if not password:
             return make_response(jsonify({'error': 'Please enter your password'}), 500)
+
+        if not confirm_password:
+            return make_response(jsonify({'error': 'Please confirm your password'}), 500)
 
         if password != confirm_password:
             return make_response(jsonify({'error': 'Passwords do not match'}), 500)
@@ -207,7 +205,6 @@ class AbstractFeatures(object):
                 values['description'] = self.description
                 values['category'] = self.category
 
-            db.sync()
             self.message = 'Bucket updated successfully'
             return self
 
