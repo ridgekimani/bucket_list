@@ -243,7 +243,7 @@ function deleteActivity(activity_key){
         success: function (response) {
             var json = JSON.parse(response);
             swal('Success!', json.success, 'success');
-            window.location.href = '/view_buckets/'
+            window.location.reload();
         },
         error: function (xhr) {
             var json = JSON.parse(xhr.responseText);
