@@ -16,7 +16,8 @@
                     <a href="{{ url_for('create_bucket') }}"> <i class="fa fa-home"></i> Add Bucket </a>
                 </li>
 
-                <li {% if page == 'View Buckets' or page == 'Update Bucket' or page == 'View Activities' %}
+                <li {% if page == 'Update Activity' or page == 'View Buckets' or page == 'Update Bucket'
+                        or page == 'View Activities' %}
                     class="active"{% endif %}>
                     <a href="{{ url_for('view_buckets') }}"> <i class="fa fa-home"></i> View Buckets </a>
                 </li>

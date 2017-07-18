@@ -12,7 +12,7 @@
                 <div class="card">
                     <div class="card-block">
                         <div class="card-title-block">
-                            <h3 class="title"> {{ bucket }}'s Activities</h3>
+                            <h3 class="title"> {% if bucket %}{{ bucket }}'s{% else %}No{% endif %} Activities</h3>
                         </div>
                         <section class="example">
                             <div class="table-flip-scroll">
@@ -40,11 +40,7 @@
 
                                             {% elif value == 'activity_key' %}
 
-                                            <div style="display: none">
-                                                <input type="hidden" name="key" id="key" hidden value="{{ item }}">
-                                            </div>
-
-                                            <td class="center" ><button type="button" onclick="updateActivity('{{ item }}')" class="btn btn-success-outline btn-sm">Update</button></td>
+                                            <td class="center" ><button type="button" onclick="updateActivityUrl('{{ item }}')" class="btn btn-success-outline btn-sm">Update</button></td>
                                             <td class="center"><button type="button" onclick="deleteActivity('{{ item }}')" class="btn btn-danger-outline btn-sm">Delete</button></td>
 
                                             {% elif value == 'key' %}

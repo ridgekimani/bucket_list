@@ -221,40 +221,9 @@ function viewActivitiesUrl(key){
     window.location.href = '/view_activities/?key=' + key;
 }
 
-function updateActivity(activity_key){
-    swal({
-        title: 'Add Activity',
-        input: 'textarea',
-        showCancelButton: true,
-        inputValidator: function (value){
-            return new Promise(function (resolve, reject){
-                if (value){
-                    resolve()
-                }
-                else{
-                    reject('Please add your activities!')
-                }
-            })
-        }
-    }).then(function (text) {
-        if (!text){
-            swal('Error!', 'Please enter your activities');
-            return 0;
-        }
-        $.ajax({
-            data: {text:text, key:key, activity_key:activity_key},
-            url: '/update_activity/',
-            type: 'POST',
-            dataType: 'text',
-            success: function(response){
-                var json = JSON.parse(response);
-                swal('Success!', json.success, 'success');
-                window.location.href = '/view_activities/?key=' + key;
-            }
-        })
-
-    })
-
+function updateActivityUrl(activity_key){
+    var key = $("#key").val();
+    window.location.href = '/update_activity/?key=' + key + activity_key;
 
 }
 
@@ -282,5 +251,35 @@ function deleteActivity(activity_key){
             return 0;
         }
     });
+
+}
+
+function updateActivity(){
+    var activity_key = $("#activity_key").val();
+    var key = $("#key").val();
+    var description = $("#div_description").text();
+
+    if (!description){
+        swal('Error!', 'Please enter the activities', 'error');
+        return 0;
+    }
+        $.ajax({
+        url: '/update_activity/',
+        data: {description:description, activity_key:activity_key, key:key},
+        type: 'POST',
+        dataType: 'text',
+        success: function (response) {
+            var json = JSON.parse(response);
+            swal("Success", json.success, 'success');
+            window.location.href = '/view_activities/?key=' + key;
+        },
+        error: function (xhr) {
+            var json = JSON.parse(xhr.responseText);
+            swal("Error!", json.error, 'error');
+            return 0;
+        }
+    })
+
+
 
 }
