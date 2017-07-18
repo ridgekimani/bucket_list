@@ -9,7 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{{ url_for('static', filename='plugins/animate/vendor.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css')}}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/sweetalert/sweetalert.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/sweetalert2/sweetalert2.css') }}">
         {% block styles %}{% endblock %}
     </head>
 
@@ -51,7 +51,8 @@
             </div>
         </div>
         <script src="{{ url_for('static', filename='plugins/animate/vendor.js')}}"></script>
-        <script src="{{ url_for('static', filename='plugins/sweetalert/sweetalert.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='plugins/sweetalert2/sweetalert2.common.js') }}"></script>
+        <script src="{{ url_for('static', filename='plugins/sweetalert2/sweetalert2.js') }}"></script>
         <script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/app.js') }}"></script>
         <script src="{{ url_for('static', filename='js/script.js')}}"></script>
