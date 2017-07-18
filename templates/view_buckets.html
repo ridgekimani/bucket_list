@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+<article class="content responsive-tables-page">
+
+    <div class="title-block">
+        <h1 class="title"> View Buckets </h1>
+    </div>
+
+    <section class="section">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-block">
+                        <div class="card-title-block">
+                            <h3 class="title"> Your Buckets </h3>
+                        </div>
+                        <section class="example">
+                            <div class="table-flip-scroll">
+                                <table class="table table-striped table-bordered table-hover flip-content">
+                                    <thead class="flip-header">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                            <th>Category</th>
+                                            <th>Date Created</th>
+                                            <th>Activities</th>
+                                            <th>Activities</th>
+                                            <th>Update</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% if data %}
+                                        {% for detail in details.values() %}
+                                        <tr>
+                                            {% for value, item in detail.items() %}
+                                                {% if value == 'bucket_name' %}
+                                                    <td>{{ item }}</td>
+
+                                                {% elif value == 'description' %}
+                                                    <td>{{ item }}</td>
+
+                                                {% elif value == 'category' %}
+                                                    <td>{% if not item %}General{% endif %}{{item}}</td>
+
+                                                {% elif value == 'created' %}
+                                                    <td>{{ item }}</td>
+
+                                                {% elif value == 'key' %}
+
+                                                    <div style="display: none">
+                                                        <input type="hidden" name="key" id="key" hidden value="{{ item }}">
+                                                    </div>
+
+                                                    <td class="center"><button type="button" onclick="addActivity('{{ item }}')" class="btn btn-success-outline btn-sm">Add</button></td>
+                                                    <td class="center" ><button type="button" onclick="viewActivities('{{ item }}')" class="btn btn-success-outline btn-sm">View</button> </td>
+                                                    <td class="center" ><button type="button" onclick="updateBucketUrl('{{ item }}')" class="btn btn-success-outline btn-sm">Update</button></td>
+                                                    <td class="center"><button type="button" onclick="deleteBucket('{{ item }}')" class="btn btn-danger-outline btn-sm">Delete</button></td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</article>
+{% endblock %}

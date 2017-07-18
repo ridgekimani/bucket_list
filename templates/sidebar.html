@@ -1,0 +1,25 @@
+<aside class="sidebar">
+    <div class="sidebar-container">
+        <div class="sidebar-header">
+            <div class="brand">
+                BUCKET-LIST
+            </div>
+        </div>
+
+        <nav class="menu">
+            <ul class="nav metismenu" id="sidebar-menu">
+                <li {% if page == 'Dashboard' %}class="active"{% endif %}>
+                    <a href="#"> <i class="fa fa-home"></i> Dashboard </a>
+                </li>
+
+                <li {% if page =='Create Bucket' %}class="active"{% endif %}>
+                    <a href="{{ url_for('create_bucket') }}"> <i class="fa fa-home"></i> Add Bucket </a>
+                </li>
+
+                <li {% if page == 'View Buckets' or page == 'Update Bucket'%}class="active"{% endif %}>
+                    <a href="{{ url_for('view_buckets') }}"> <i class="fa fa-home"></i> View Buckets </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>

@@ -1,7 +1,9 @@
 # Bucket List
 This  your everyday bucket list, a place to keep and discover things that will enrich your life.
 
-### How to set up the project on Unix environments
+[![Build Status](https://travis-ci.org/ridgekimani/bucket_list.svg?branch=master)](https://travis-ci.org/ridgekimani/bucket_list)
+
+### How to set up the project
   #### Downloading the project and installing required packages
       1. Ensure you have a python interpreter installed, preferably python3
       2. Ensure you have git installed
@@ -18,4 +20,7 @@ This  your everyday bucket list, a place to keep and discover things that will e
          2. Example
             >>> import flask
             >>> print (flask.__version__)
-      12. Run tests using ~$ python tests.py
+            '0.12.2'            
+      12. Run tests using ~$  python -m unittest unit_tests.py 
+
+     

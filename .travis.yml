@@ -1,0 +1,16 @@
+sudo: false
+language: python
+python:
+  - 3.6
+
+env:
+  - FLASK=0.12.2
+
+install:
+  - pip install Flask==$FLASK
+  - pip install -r requirements.txt
+
+script: python -m unittest unit_tests.py
+
+after_success:
+  - coveralls

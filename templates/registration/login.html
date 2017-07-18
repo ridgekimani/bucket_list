@@ -1,0 +1,55 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title> Bucket-list | Login </title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/animate/vendor.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='plugins/sweetalert/sweetalert.css') }}">
+    </head>
+
+    <body>
+        <div class="auth">
+            <div class="auth-container">
+                <div class="card">
+                    <header class="auth-header">
+                        <h1 class="auth-title">
+                            BUCKET-LIST
+                        </h1>
+                    </header>
+                    <div class="auth-content">
+                        <p class="text-xs-center">LOGIN TO CONTINUE</p>
+                        <form id="login-form" method="POST" onsubmit="return false">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" class="form-control underlined" name="username" id="username" placeholder="Your Username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control underlined" name="password" id="password" placeholder="Your Password" required>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" onclick="login()" class="btn btn-block btn-primary">Login</button>
+                            </div>
+                            <div class="form-group">
+                                <p class="text-muted text-xs-center">Do not have an account?
+                                    <a href="{{ url_for('register') }}">Sign Up!</a>
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="{{ url_for('static', filename='plugins/animate/vendor.js')}}"></script>
+        <script src="{{ url_for('static', filename='plugins/sweetalert/sweetalert.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}"></script>
+    </body>
+</html>
