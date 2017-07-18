@@ -424,7 +424,6 @@ class AddActivity(AbstractFeatures, View):
             return post()
 
 
-
 class ViewActivities(AbstractFeatures, View):
     methods = ['GET']
 
