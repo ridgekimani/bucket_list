@@ -23,4 +23,4 @@ This  your everyday bucket list, a place to keep and discover things that will e
             '0.12.2'            
       12. Run tests using ~$  python unit_tests.py 
 
-     
+ The project is running at http://ridge-bucket-list.herokuapp.com/ 
