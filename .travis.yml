@@ -8,10 +8,14 @@ env:
   - FLASK=0.12.2
 
 install:
+
+  - pip install python-coveralls
+  - pip install coverage
+  - pip install nose
   - pip install Flask==$FLASK
   - pip install -r requirements.txt
 
-script: python unit_tests.py
+script: nosetests --with-coverage
 
 after_success:
   - coveralls
