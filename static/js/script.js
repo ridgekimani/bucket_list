@@ -214,7 +214,7 @@ function addActivity(key){
             success: function(response){
                 var json = JSON.parse(response);
                 swal('Success!', json.success, 'success');
-                window.location.href = '/view_activities/?key=' + key;
+                return 0;
             }
         })
 
