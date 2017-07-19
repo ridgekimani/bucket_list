@@ -1,7 +1,7 @@
 # Bucket List
 This  your everyday bucket list, a place to keep and discover things that will enrich your life.
 
-[![Build Status](https://travis-ci.org/ridgekimani/bucket_list.svg?branch=master)](https://travis-ci.org/ridgekimani/bucket_list)
+[![Build Status](https://travis-ci.org/ridgekimani/bucket_list.svg?branch=master)](https://travis-ci.org/ridgekimani/bucket_list)[![Coverage Status](https://coveralls.io/repos/github/ridgekimani/bucket_list/badge.svg?branch=testing)](https://coveralls.io/github/ridgekimani/bucket_list?branch=master)
 
 ### How to set up the project
   #### Downloading the project and installing required packages
