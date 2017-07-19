@@ -1,7 +1,18 @@
+import datetime
 import unittest
-from .. app import db, app, AbstractFeatures
+from .. app import db, app
 
 from flask_testing import TestCase
+
+
+def load_data():
+    data = {'test@user.com': 'test_password',
+            'buckets': [{'user': 'test@user.com', 'bucket_name': 'test_bucket', 'description': 'Test description',
+                        'category': 'Health', 'created': datetime.date(2017, 7, 19), 'key': '00000000'}],
+            'activities': [{'user': 'test@user.com', 'description': 'Test activity',
+                           'created': datetime.date(2017, 7, 19), 'activity_key': '11111111', 'key': '00000000'}]}
+
+    return data
 
 
 class TestLoginTestCases(TestCase):
@@ -179,6 +190,11 @@ class TestBucketCRUDOperations(unittest.TestCase):
             with c.session_transaction() as sess:
                 sess['user'] = 'test@user.com'
 
+        db['buckets'] = [{'user': 'test@user.com', 'bucket_name': 'test_bucket', 'description': 'Test description',
+                          'category': 'Health', 'created': datetime.date(2017, 7, 19), 'key': '00000000'}]
+
+        db['activities'] = [{'user': 'test@user.com', 'description': 'Test activity',
+                             'created': datetime.date(2017, 7, 19), 'activity_key': '11111111', 'key': '00000000'}]
 
     def test_create_bucket_test_cases(self):
         """
@@ -209,13 +225,15 @@ class TestBucketCRUDOperations(unittest.TestCase):
         Test for the post and get request for the update bucket view
         :return: 200
         """
-        x = AbstractFeatures()
-        print(x.key)
         print("----------Test for update bucket get request without any params----------")
         response = self.app.get('/update_bucket/')
         self.assertEqual(response.status_code, 302)
         print("---------Test for update bucket get with params------------")
-        response = self.app.get("/update_bucket/")
+        response = self.app.get('/update_bucket/?key=00000000')
+        self.assertEqual(response.status_code, 200)
+        data = {'bucket_name': 'Test bucket', 'key': '000000'}
+        response = self.app.post("/update_bucket/?key='00000000'", data=data)
+        self.assertEqual(response.status_code, 200)
 
     def test_delete_test_cases(self):
         """
@@ -242,17 +260,20 @@ class TestActivityCRUDOperations(unittest.TestCase):
             with c.session_transaction() as sess:
                 sess['user'] = 'test@user.com'
 
-    def create_activity_test_cases(self):
+        db['activities'] = [{'user': 'test@user.com', 'description': 'Test activity',
+                            'created': datetime.date(2017, 7, 19), 'activity_key': '11111111', 'key': '00000000'}]
+
+    def test_create_activity_test_cases(self):
         """
         Test for the create activity post request
         :return: 200
         """
         print("----------Test for create activity post request----------")
-        data = dict(activity=True, text='Test activity')
+        data = dict(activity=True, text='Test activity', key='00000000')
         response = self.app.post('/add_activity/', data=data)
         self.assertEqual(response.status_code, 200)
 
-    def read_activity_test_cases(self):
+    def test_read_activity_test_cases(self):
         """
         Test for the read activity get request
         :return: 200
@@ -261,16 +282,18 @@ class TestActivityCRUDOperations(unittest.TestCase):
         response = self.app.get("/view_activities/?key='00000000'")
         self.assertEqual(response.status_code, 200)
 
-    def update_activity_test_cases(self):
+    def test_update_activity_test_cases(self):
         """
         Test for the update activity post and get request
         :return: 200
         """
         print("--------Test for update activity get request-------------")
-        response = self.app.get("/update_activity/?key='0000000011111111'")
+        print("------------Test for activity post request-------------")
+        data = dict(description='Awesome description', key='00000000', activity_key='11111111')
+        response = self.app.post('/update_activity/', data=data)
+        self.assertEqual(response.status_code, 200)
 
-
-    def delete_activity_test_cases(self):
+    def test_delete_activity_test_cases(self):
         """
         Test for the delete post request
         :return:
@@ -323,7 +346,7 @@ class TestBucketCRUDOperationsWithNoSessions(TestCase):
         :return: 302
         """
         print("----------Test for update bucket get request redirects----------")
-        response = self.client.get('/update_bucket/?key=6789000')
+        response = self.client.get('/update_bucket/')
         self.assertEqual(response.status_code, 302)
 
     def test_delete_data(self):
