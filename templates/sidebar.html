@@ -8,10 +8,6 @@
 
         <nav class="menu">
             <ul class="nav metismenu" id="sidebar-menu">
-                <li {% if page == 'Dashboard' %}class="active"{% endif %}>
-                    <a href="#"> <i class="fa fa-home"></i> Dashboard </a>
-                </li>
-
                 <li {% if page =='Create Bucket' %}class="active"{% endif %}>
                     <a href="{{ url_for('create_bucket') }}"> <i class="fa fa-home"></i> Add Bucket </a>
                 </li>
@@ -19,7 +15,7 @@
                 <li {% if page == 'Update Activity' or page == 'View Buckets' or page == 'Update Bucket'
                         or page == 'View Activities' %}
                     class="active"{% endif %}>
-                    <a href="{{ url_for('view_buckets') }}"> <i class="fa fa-home"></i> View Buckets </a>
+                    <a href="{{ url_for('view_buckets') }}"> <i class="fa fa-bitbucket"></i> View Buckets </a>
                 </li>
             </ul>
         </nav>
