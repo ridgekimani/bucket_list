@@ -2,6 +2,10 @@
 This  your everyday bucket list, a place to keep and discover things that will enrich your life.
 
 [![Build Status](https://travis-ci.org/ridgekimani/bucket_list.svg?branch=master)](https://travis-ci.org/ridgekimani/bucket_list)[![Coverage Status](https://coveralls.io/repos/github/ridgekimani/bucket_list/badge.svg?branch=testing)](https://coveralls.io/github/ridgekimani/bucket_list?branch=master)
+![python](https://img.shields.io/badge/python-3.6%203.5-green.svg)
+![flask](https://img.shields.io/badge/flask-0.12.2-blue.svg)
+
+
 
 ### How to set up the project
   #### Downloading the project and installing required packages
