@@ -493,7 +493,7 @@ class AddActivity(AbstractFeatures, View):
         if not description:
             return make_response(jsonify({'error': 'Please enter your activities'}), 500)
 
-        data = dict(activity=True, username=username, description=description, key=unique_key )
+        data = dict(activity=True, username=username, description=description, key=unique_key)
 
         response = self.create_data(**data)
         if response.message:
