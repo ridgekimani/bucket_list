@@ -10,6 +10,7 @@ env:
 install:
 
   - pip install python-coveralls
+  - pip install coveralls
   - pip install coverage
   - pip install nose
   - pip install Flask==$FLASK
