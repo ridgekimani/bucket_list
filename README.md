@@ -25,7 +25,7 @@ This  your everyday bucket list, a place to keep and discover things that will e
   8. Install the packages from the requirements.txt file by typing ~$ pip install -r requirements.txt'
   
   ### Running the app
-    On your shell, runn with the command (env)~$ python runserver.py
+    On your shell, run with the command (env)~$ python runserver.py
     
   ### Running tests
     Run tests using (env)~$  nosetests
