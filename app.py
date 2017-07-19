@@ -268,7 +268,11 @@ class AbstractFeatures(object):
 
         def delete_bucket():
             db['buckets'] = [item for item in db['buckets'] if item['key'] != self.key]
-            db['activities'] = [item for item in db['activities'] if item['key'] != self.key]
+            try:
+
+                db['activities'] = [item for item in db['activities'] if item['key'] != self.key]
+            except KeyError:
+                pass
 
             self.message = 'Bucket deleted successfully'
             return self

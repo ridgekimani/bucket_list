@@ -1,6 +1,18 @@
+import datetime
 import unittest
+from .. app import db, app
+
 from flask_testing import TestCase
-from ..app import app, db
+
+
+def load_data():
+    data = {'test@user.com': 'test_password',
+            'buckets': [{'user': 'test@user.com', 'bucket_name': 'test_bucket', 'description': 'Test description',
+                        'category': 'Health', 'created': datetime.date(2017, 7, 19), 'key': '00000000'}],
+            'activities': [{'user': 'test@user.com', 'description': 'Test activity',
+                           'created': datetime.date(2017, 7, 19), 'activity_key': '11111111', 'key': '00000000'}]}
+
+    return data
 
 
 class TestLoginTestCases(TestCase):
@@ -12,7 +24,7 @@ class TestLoginTestCases(TestCase):
     """
 
     def create_app(self):
-        db['test_username'] = 'test_password'
+        db['test@email.com'] = 'test_password'
         return app
 
     def test_home_page_redirect(self):
@@ -39,7 +51,7 @@ class TestLoginTestCases(TestCase):
         :return: success
         """
         print("--------------Test login with correct credentials------------")
-        response = self.client.post('/login/', data=dict(email='test_username', password='test_password'))
+        response = self.client.post('/login/', data=dict(email='test@email.com', password='test_password'))
         self.assertEqual(response.json, dict(success='Authenticated successfully'))
 
     def test_login_with_wrong_username(self):
@@ -57,7 +69,7 @@ class TestLoginTestCases(TestCase):
         :return: error
         """
         print("----------Test login with wrong password------------")
-        response = self.client.post('/login/', data=dict(email='test_username', password='test_wrong_password'))
+        response = self.client.post('/login/', data=dict(email='test@email.com', password='test_wrong_password'))
         self.assertEqual(response.json, dict(error='Incorrect password'))
 
 
@@ -66,11 +78,11 @@ class TestLogOutTestCase(unittest.TestCase):
     This test class tests the logout functionality
     """
     def setUp(self):
-        db['test_username'] = 'test_password'
+        db['test@email.com'] = 'test_password'
         self.app = app.test_client()
         with self.app as c:
             with c.session_transaction() as sess:
-                sess['user'] = 'test_username'
+                sess['user'] = 'test@email.com'
 
     def test_logout_test_case(self):
         """
@@ -94,7 +106,7 @@ class TestSignUpTestCases(TestCase):
     """
 
     def create_app(self):
-        db['test_username'] = 'test_password'
+        db['test@email.com'] = 'test_password'
         return app
 
     def test_signup_get_request(self):
@@ -112,7 +124,7 @@ class TestSignUpTestCases(TestCase):
         :return: success
         """
         print("---------Test for signup with unique and clean data---------------")
-        response = self.client.post('/register/', data=dict(email='test@email.com', password='test_password',
+        response = self.client.post('/register/', data=dict(email='test@em.com', password='test_password',
                                                             confirm_password='test_password'))
         self.assertEqual(response.json, {'success': 'Account created successfully'})
 
@@ -122,7 +134,7 @@ class TestSignUpTestCases(TestCase):
         :return: error
         """
         print("---------Test for signup with existing username---------------")
-        response = self.client.post('/register/', data=dict(email='test_username', password='test_password',
+        response = self.client.post('/register/', data=dict(email='test@email.com', password='test_password',
                                                             confirm_password='test_password'))
         self.assertEqual(response.json, {'error': 'User already exists with that username'})
 
@@ -159,7 +171,7 @@ class TestSignUpTestCases(TestCase):
         response = self.client.post('/register/', data={'email': 'kim'})
         self.assertEqual(response.json, {'error': 'Username too short. Please enter more than 4 characters'})
         print("------------Test for signup with short password ----------------")
-        response = self.client.post('/register/', data={'email': 'test_username', 'password': 'pass'})
+        response = self.client.post('/register/', data={'email': 'test@email.com', 'password': 'pass'})
         self.assertEqual(response.json, {'error': 'Please enter more than 8 characters for your password'})
 
 
@@ -173,11 +185,16 @@ class TestBucketCRUDOperations(unittest.TestCase):
             delete bucket
     """
     def setUp(self):
-        db['test_username'] = 'test_password'
         self.app = app.test_client()
         with self.app as c:
             with c.session_transaction() as sess:
-                sess['user'] = 'test_username'
+                sess['user'] = 'test@user.com'
+
+        db['buckets'] = [{'user': 'test@user.com', 'bucket_name': 'test_bucket', 'description': 'Test description',
+                          'category': 'Health', 'created': datetime.date(2017, 7, 19), 'key': '00000000'}]
+
+        db['activities'] = [{'user': 'test@user.com', 'description': 'Test activity',
+                             'created': datetime.date(2017, 7, 19), 'activity_key': '11111111', 'key': '00000000'}]
 
     def test_create_bucket_test_cases(self):
         """
@@ -188,9 +205,9 @@ class TestBucketCRUDOperations(unittest.TestCase):
         response = self.app.get('/create_bucket/')
         self.assertEqual(response.status_code, 200)
 
-        data = dict(bucket=True, username='test_username', bucket_name='test_bucket', category='6',
+        data = dict(bucket=True, username='test@email.com', bucket_name='test_bucket', category='6',
                     description='Test description')
-        print('--------Test for create post request')
+        print('--------Test for create post request------------')
         response = self.app.post('/create_bucket/', data=data)
         self.assertEqual(response.status_code, 200)
 
@@ -211,6 +228,12 @@ class TestBucketCRUDOperations(unittest.TestCase):
         print("----------Test for update bucket get request without any params----------")
         response = self.app.get('/update_bucket/')
         self.assertEqual(response.status_code, 302)
+        print("---------Test for update bucket get with params------------")
+        response = self.app.get('/update_bucket/?key=00000000')
+        self.assertEqual(response.status_code, 200)
+        data = {'bucket_name': 'Test bucket', 'key': '000000'}
+        response = self.app.post("/update_bucket/?key='00000000'", data=data)
+        self.assertEqual(response.status_code, 200)
 
     def test_delete_test_cases(self):
         """
@@ -218,6 +241,8 @@ class TestBucketCRUDOperations(unittest.TestCase):
         :return:
         """
         print("-----------Test for delete bucket ---------------")
+        response = self.app.post('/delete/', data=dict(key='00000000', bucket='true'))
+        self.assertEqual(response.status_code, 200)
 
 
 class TestActivityCRUDOperations(unittest.TestCase):
@@ -230,39 +255,53 @@ class TestActivityCRUDOperations(unittest.TestCase):
             delete activity
     """
     def setUp(self):
-        db['test_username'] = 'test_password'
         self.app = app.test_client()
         with self.app as c:
             with c.session_transaction() as sess:
-                sess['user'] = 'test_username'
+                sess['user'] = 'test@user.com'
 
-    def create_activity_test_cases(self):
+        db['activities'] = [{'user': 'test@user.com', 'description': 'Test activity',
+                            'created': datetime.date(2017, 7, 19), 'activity_key': '11111111', 'key': '00000000'}]
+
+    def test_create_activity_test_cases(self):
         """
-        Test for the create activity post and get request
+        Test for the create activity post request
         :return: 200
         """
-        return self
+        print("----------Test for create activity post request----------")
+        data = dict(activity=True, text='Test activity', key='00000000')
+        response = self.app.post('/add_activity/', data=data)
+        self.assertEqual(response.status_code, 200)
 
-    def read_activity_test_cases(self):
+    def test_read_activity_test_cases(self):
         """
         Test for the read activity get request
         :return: 200
         """
-        return self
+        print("--------Test for read activity get request----------")
+        response = self.app.get("/view_activities/?key='00000000'")
+        self.assertEqual(response.status_code, 200)
 
-    def update_activity_test_cases(self):
+    def test_update_activity_test_cases(self):
         """
         Test for the update activity post and get request
         :return: 200
         """
-        return self
+        print("--------Test for update activity get request-------------")
+        print("------------Test for activity post request-------------")
+        data = dict(description='Awesome description', key='00000000', activity_key='11111111')
+        response = self.app.post('/update_activity/', data=data)
+        self.assertEqual(response.status_code, 200)
 
-    def delete_activity_test_cases(self):
+    def test_delete_activity_test_cases(self):
         """
         Test for the delete post request
         :return:
         """
-        return self
+        print("----------Test for delete activity -------------")
+        data = {'key': '00000000', 'activity_key': '11111111', 'activity': 'true'}
+        response = self.app.post('/delete/', data=data)
+        self.assertEqual(response.status_code, 200)
 
 
 class TestBucketCRUDOperationsWithNoSessions(TestCase):
@@ -286,7 +325,7 @@ class TestBucketCRUDOperationsWithNoSessions(TestCase):
         print('-------_Test for create get request redirects------------')
         response = self.client.get('/create_bucket/')
         self.assertEqual(response.status_code, 302)
-        data = dict(bucket=True, username='test_username', bucket_name='test_bucket', category='6',
+        data = dict(bucket=True, username='test@email.com', bucket_name='test_bucket', category='6',
                     description='Test description')
         print('--------Test for create post request')
         response = self.client.post('/create_bucket/', data=data)
@@ -307,7 +346,7 @@ class TestBucketCRUDOperationsWithNoSessions(TestCase):
         :return: 302
         """
         print("----------Test for update bucket get request redirects----------")
-        response = self.client.get('/update_bucket/?key=6789000')
+        response = self.client.get('/update_bucket/')
         self.assertEqual(response.status_code, 302)
 
     def test_delete_data(self):

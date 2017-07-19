@@ -55,7 +55,11 @@ function login(){
     var password = $("#password").val();
 
     if(!email){
-        swal("Error!", "Please enter your username", "error");
+        swal("Error!", "Please enter your email", "error");
+        return 0;
+    }
+    if (!validateEmail(email)){
+        swal("Error!", "Please enter a valid email address", 'error');
         return 0;
     }
     if(!password){
