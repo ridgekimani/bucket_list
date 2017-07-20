@@ -256,8 +256,6 @@ class AbstractFeatures(object):
 
         elif self.activity:
             return read_activities()
-        else:
-            return False
 
     def _update_data(self):
         """
