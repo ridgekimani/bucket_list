@@ -439,8 +439,6 @@ class CreateBucket(AbstractFeatures, View):
             if response.message:
                 return make_response(jsonify({'success': 'Bucket Created successfully'}), 200)
 
-            else:
-                return make_response(jsonify({'error': self.error_message}), 500)
 
         if request.method == 'GET':
             return get()
@@ -672,8 +670,6 @@ class UpdateActivity(AbstractFeatures, View):
             if response.message:
                 return make_response(jsonify({'success': 'Activity Updated successfully'}), 200)
 
-            else:
-                return make_response(jsonify({'error': self.error_message}), 500)
 
         if request.method == 'GET':
             return get()
