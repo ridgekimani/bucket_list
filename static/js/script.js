@@ -171,7 +171,7 @@ function deleteBucket(key){
     $.ajax({
         url: '/delete/',
         data: {key:key, bucket:true},
-        type: 'POST',
+        type: 'DELETE',
         dataType: 'text',
         success: function (response) {
             var json = JSON.parse(response);
@@ -186,7 +186,10 @@ function deleteBucket(key){
     });
 }
 
-function addActivity(key){
+function addActivity(){
+    var key = $("#key").val();
+    var page = $("#page").val();
+
     swal({
         title: 'Add Activity',
         input: 'textarea',
@@ -214,6 +217,9 @@ function addActivity(key){
             success: function(response){
                 var json = JSON.parse(response);
                 swal('Success!', json.success, 'success');
+                if (page){
+                    window.location.reload();
+                }
                 return 0;
             }
         })
@@ -242,7 +248,7 @@ function deleteActivity(activity_key){
     $.ajax({
         url: '/delete/',
         data: {key:key, activity:true, activity_key:activity_key},
-        type: 'POST',
+        type: 'DELETE',
         dataType: 'text',
         success: function (response) {
             var json = JSON.parse(response);
