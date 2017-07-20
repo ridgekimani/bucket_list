@@ -107,8 +107,8 @@ function createBucket(value){
         data: {bucket_name:bucket_name, description:description, category:category},
         type: 'POST',
         success: function(){
-            swal('Success!','Bucket created successfully', 'success');
             if (value === 1){
+                swal('Success!','Bucket created successfully', 'success');
                 window.location.href = '/view_buckets/';
             }
             else if (value === 2){
@@ -216,9 +216,11 @@ function addActivity(){
             dataType: 'text',
             success: function(response){
                 var json = JSON.parse(response);
-                swal('Success!', json.success, 'success');
                 if (page){
                     window.location.reload();
+                }
+                else{
+                    swal('Success!', json.success, 'success');
                 }
                 return 0;
             }

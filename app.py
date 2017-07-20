@@ -1,3 +1,10 @@
+"""
+This is the bucket list main app.
+It handles all activities that will be used  within the app
+This includes: login, CRUD operations of buckets and activities
+"""
+
+
 import uuid
 
 from datetime import date
@@ -302,6 +309,10 @@ class AbstractFeatures(object):
     def _delete_data(self):
 
         def delete_bucket():
+            """
+            This method is used to delete the specified bucket
+            :return: self
+            """
             DB['buckets'] = [item for item in DB['buckets'] if item['key'] != self.key]
             try:
 
@@ -313,9 +324,13 @@ class AbstractFeatures(object):
             return self
 
         def delete_activity():
+            """
+            This method is used to delete the specified activity
+            :return: self
+            """
+
             DB['activities'] = [item for item in DB['activities']
-                                if item['key'] != self.key and
-                                item['activity_key'] != self.activity_key]
+                                if item['activity_key'] != self.activity_key]
 
             self.message = 'Activity successfully deleted'
             return self
@@ -330,7 +345,7 @@ class AbstractFeatures(object):
         """
         This method is used to get specific data unit given the key and the email
         It is used while creating a bucket activity or updating the bucket
-        :return:
+        :return: self
         """
         def get_bucket():
             """
@@ -373,33 +388,63 @@ class AbstractFeatures(object):
 
     @staticmethod
     def create_data(*args, **kwargs):
+        """
+        Accessor method used create data
+        :param args:
+        :param kwargs:
+        :return: create_data
+        """
         data = AbstractFeatures(*args, **kwargs)
         return data._create_data()
 
     @staticmethod
     def read_data(*args, **kwargs):
+        """
+        Accessor method used to read data
+        :param args:
+        :param kwargs:
+        :return: read_data
+        """
         data = AbstractFeatures(*args, **kwargs)
         return data._read_data()
 
     @staticmethod
     def update_data(*args, **kwargs):
+        """
+        Accessor method used to update data
+        :param args:
+        :param kwargs:
+        :return: update_data
+        """
         data = AbstractFeatures(*args, **kwargs)
         return data._update_data()
 
     @staticmethod
     def delete_data(*args, **kwargs):
+        """
+        Accessor method used to delete specific data
+        :param args:
+        :param kwargs:
+        :return: delete_data
+        """
         data = AbstractFeatures(*args, **kwargs)
         return data._delete_data()
 
     @staticmethod
     def get_specific_data(*args, **kwargs):
+        """
+        Accessor method used to get specific bucket or activity
+        :param args:
+        :param kwargs:
+        :return: get_specific_data
+        """
         data = AbstractFeatures(*args, **kwargs)
         return data._get_specific_data()
 
 
 class CreateBucket(AbstractFeatures, View):
     """
-    This function is
+    This function is used to create bucket data and save it to the databas
     """
 
     methods = ['GET', 'POST']
@@ -411,12 +456,20 @@ class CreateBucket(AbstractFeatures, View):
         """
 
         def get():
+            """
+            This method is used to get data from the database and render it to a template
+            :return: response
+            """
             if 'user' in session.keys() and 'user' in session.keys() is not None:
                 return render_template('create_bucket.html', page='Create Bucket', data=CATEGORIES)
             else:
                 return redirect('/login/')
 
         def post():
+            """
+            This method is used to post data to the database and return a response
+            :return: response
+            """
             email = session.get('user')
 
             if not email:
@@ -438,7 +491,6 @@ class CreateBucket(AbstractFeatures, View):
             response = self.create_data(**data)
             if response.message:
                 return make_response(jsonify({'success': 'Bucket Created successfully'}), 200)
-
 
         if request.method == 'GET':
             return get()
@@ -490,6 +542,11 @@ class UpdateBucket(AbstractFeatures, View):
         """
 
         def get():
+            """
+            This method is used to get bucket data from the database
+            and render it to a template
+            :return: response
+            """
             unique_key = request.args.get('key')
 
             if not unique_key:
@@ -510,6 +567,11 @@ class UpdateBucket(AbstractFeatures, View):
                 return redirect('/login/')
 
         def post():
+            """
+            This method is used to post updated bucket data to  the database and
+                return a response
+            :return: response
+            """
             email = session.get('user')
 
             if not email:
@@ -581,7 +643,9 @@ class AddActivity(AbstractFeatures, View):
 
 class ViewActivities(AbstractFeatures, View):
     """
-
+    This class implements functionality of viewing the
+    activity's details.
+    It implements a get request to render the details
     """
 
     methods = ['GET']
@@ -627,6 +691,10 @@ class UpdateActivity(AbstractFeatures, View):
         the arguments from the URL rule.
         """
         def get():
+            """
+            This method is used to get activity data from the database and render to a template
+            :return: response
+            """
             unique_key = request.args.get('key')
 
             if not unique_key or len(unique_key) != 16:
@@ -652,6 +720,10 @@ class UpdateActivity(AbstractFeatures, View):
                 return redirect('/login/')
 
         def post():
+            """
+            This method is used to post activity data to the database
+            :return: response
+            """
             email = session.get('user')
 
             if not email:
@@ -669,7 +741,6 @@ class UpdateActivity(AbstractFeatures, View):
 
             if response.message:
                 return make_response(jsonify({'success': 'Activity Updated successfully'}), 200)
-
 
         if request.method == 'GET':
             return get()
