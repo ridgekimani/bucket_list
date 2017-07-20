@@ -1,20 +1,18 @@
 import uuid
 
+from datetime import date
+
 from flask import request, render_template, Flask, jsonify, make_response, redirect, session
 
 from flask.views import View
 
-from datetime import date
-
 app = Flask(__name__)
-
-app.config.from_object(__name__)
 
 app.secret_key = 'this is a secret'
 
-db = dict()
+DB = dict()
 
-categories = [
+CATEGORIES = [
     {'1': 'Travel'},
     {'2': 'Health'},
     {'3': 'Wealth'},
@@ -27,63 +25,69 @@ categories = [
 
 @app.route('/', methods=['GET'])
 def home():
+    """
+    Redirects to login
+    :return:
+    """
     return redirect('/login/')
 
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
+    """
+    This function is used to register a new user. It
+    contains validation to an existing user
+    :return: 200
+    """
     if request.method == 'GET':
         return render_template('registration/register.html')
 
     if request.method == 'POST':
         data = request.form.to_dict()
-        username = data.get('email')
+        email = data.get('email')
         password = data.get('password')
-        confirm_password = data.get('confirm_password')
 
-        if not username:
-            return make_response(jsonify({'error': 'Please enter your email'}), 500)
-
-        if len(username) < 5:
-            return make_response(jsonify({'error': 'Username too short. Please enter more than 4 characters'}), 500)
-
-        if not password:
-            return make_response(jsonify({'error': 'Please enter your password'}), 500)
+        if len(email) < 5:
+            return make_response(jsonify({'error': 'email too short. '
+                                                   'Please enter more than 4 characters'}), 500)
 
         if len(password) < 8:
-            return make_response(jsonify({'error': 'Please enter more than 8 characters for your password'}), 500)
+            return make_response(jsonify({'error': 'Please enter more than '
+                                                   '8 characters for your password'}), 500)
 
-        if not confirm_password:
-            return make_response(jsonify({'error': 'Please confirm your password'}), 500)
+        if email in DB.keys():
+            return make_response(jsonify({'error': 'User already exists with that email'}), 500)
 
-        if password != confirm_password:
-            return make_response(jsonify({'error': 'Passwords do not match'}), 500)
-
-        if username in db.keys():
-            return make_response(jsonify({'error': 'User already exists with that username'}), 500)
-
-        db[username] = password
-        session['user'] = username
+        DB[email] = password
+        session['user'] = email
         return jsonify({'success': 'Account created successfully'})
 
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
+    """
+    This function is used to login a user
+    The user is created a session to log into
+    :return: json response
+
+    """
+
     if request.method == 'GET':
         return render_template('registration/login.html')
 
     if request.method == 'POST':
         data = request.form.to_dict()
-        username = data.get('email')
+        email = data.get('email')
         password = data.get('password')
 
-        if username not in db.keys():
-            return make_response(jsonify({'error': 'Username not found. Please sign up to continue'}), 500)
+        if email not in DB.keys():
+            return make_response(jsonify({'error': 'Email not found. '
+                                                   'Please sign up to continue'}), 500)
 
-        for key, value in db.items():
-            if key == username:
+        for key, value in DB.items():
+            if key == email:
                 if value == password:
-                    session['user'] = username
+                    session['user'] = email
                     return jsonify({'success': 'Authenticated successfully'})
                 else:
                     return make_response(jsonify({'error': 'Incorrect password'}), 500)
@@ -91,6 +95,10 @@ def login():
 
 @app.route('/logout/', methods=['GET'])
 def logout():
+    """
+    Logs out a user
+    :return:
+    """
     session.pop('user', None)
     return redirect('/login/')
 
@@ -119,7 +127,7 @@ class AbstractFeatures(object):
         self.args = args
         self.message = None
         self.error_message = None
-        self.username = None
+        self.email = None
         self.bucket_name = None
         self.description = None
         self.category = None
@@ -132,7 +140,8 @@ class AbstractFeatures(object):
 
     def initialize(self):
         """
-        Maps arguments to keyword arguments and assigns the values to the attributes with the same name
+        Maps arguments to keyword arguments and
+        assigns the values to the attributes with the same name
         when the __init__ method is called
         :return: dict values
         """
@@ -143,34 +152,44 @@ class AbstractFeatures(object):
     def _create_data(self):
         """
         This private method is used to create data for both buckets and activities
-        This method contains two methods, add_bucket and add_activity and the correct functionality is
+        This method contains two methods, add_bucket and
+        add_activity and the correct functionality is
         used when specifying if its a bucket or activity as an argument
-        :return:
         """
         def add_bucket():
-            x = uuid.uuid4()
-            key = str(x)[:8]
-            values = dict(user=self.username, bucket_name=self.bucket_name, description=self.description,
-                          category=self.category, created=date.today(), key=key)
+            """
+            This method is used to create bucket
+            :return: self
+            """
 
-            if 'buckets' in db.keys():
-                db['buckets'].append(values)
+            value = uuid.uuid4()
+            key = str(value)[:8]
+            values = dict(user=self.email, bucket_name=self.bucket_name,
+                          description=self.description, category=self.category,
+                          created=date.today(), key=key)
+
+            if 'buckets' in DB.keys():
+                DB['buckets'].append(values)
             else:
-                db['buckets'] = [values]
+                DB['buckets'] = [values]
             self.message = 'Data created successfully'
             return self
 
         def add_activity():
-            x = uuid.uuid4()
-            key = str(x)[:8]
-            values = dict(user=self.username, description=self.description,  created=date.today(),  activity_key=key,
-                          key=self.key)
+            """
+            This method is used to create an activity
+            :return: self
+            """
+            value = uuid.uuid4()
+            key = str(value)[:8]
+            values = dict(user=self.email, description=self.description,
+                          created=date.today(), activity_key=key, key=self.key)
 
-            if 'activities' in db.keys():
-                db['activities'].append(values)
+            if 'activities' in DB.keys():
+                DB['activities'].append(values)
 
             else:
-                db['activities'] = [values]
+                DB['activities'] = [values]
 
             self.message = 'Data created successfully'
             return self
@@ -187,23 +206,31 @@ class AbstractFeatures(object):
         :return: list of dictionaries containing this data
         """
         def read_buckets():
+            """
+            This method is used to read buckets
+            :return: filtered_data
+            """
             try:
-                self.filtered = [item for item in db['buckets'] if item['user'] == self.username]
+                self.filtered = [item for item in DB['buckets'] if item['user'] == self.email]
                 return self.filtered
 
             except KeyError:
                 return []
 
         def read_activities():
+            """
+            This method is used to read activities
+            :return: filtered_data
+            """
             try:
-                self.filtered = [item for item in db['activities']
-                                 if item['user'] == self.username and item['key'] == self.key]
+                self.filtered = [item for item in DB['activities']
+                                 if item['user'] == self.email and item['key'] == self.key]
 
-                x = self.get_specific_data(bucket=True, username=self.username, key=self.key)
+                specific = self.get_specific_data(bucket=True, email=self.email, key=self.key)
 
                 new_details = {}
-                for i, d in enumerate(x):
-                    new_details[i] = d
+                for key_, value_ in enumerate(specific):
+                    new_details[key_] = value_
 
                 val = ''
                 for value in new_details.values():
@@ -231,10 +258,14 @@ class AbstractFeatures(object):
         :return: updated data
         """
         def update_bucket():
-            bucket = [item for item in db['buckets'] if item['key'] == self.key]
+            """
+            Used to update the bucket
+            :return: self
+            """
+            bucket = [item for item in DB['buckets'] if item['key'] == self.key]
             new_details = {}
-            for i, d in enumerate(bucket):
-                new_details[i] = d
+            for key_, value_ in enumerate(bucket):
+                new_details[key_] = value_
 
             for values in new_details.values():
                 values['bucket_name'] = self.bucket_name
@@ -245,12 +276,16 @@ class AbstractFeatures(object):
             return self
 
         def update_activity():
-            activity = [item for item in db['activities']
+            """
+            Used to update the activity
+            :return: self
+            """
+            activity = [item for item in DB['activities']
                         if item['key'] == self.key and item['activity_key'] == self.activity_key]
 
             new_details = {}
-            for i, d in enumerate(activity):
-                new_details[i] = d
+            for key_, value_ in enumerate(activity):
+                new_details[key_] = value_
 
             for values in new_details.values():
                 values['description'] = self.description
@@ -267,10 +302,10 @@ class AbstractFeatures(object):
     def _delete_data(self):
 
         def delete_bucket():
-            db['buckets'] = [item for item in db['buckets'] if item['key'] != self.key]
+            DB['buckets'] = [item for item in DB['buckets'] if item['key'] != self.key]
             try:
 
-                db['activities'] = [item for item in db['activities'] if item['key'] != self.key]
+                DB['activities'] = [item for item in DB['activities'] if item['key'] != self.key]
             except KeyError:
                 pass
 
@@ -278,8 +313,9 @@ class AbstractFeatures(object):
             return self
 
         def delete_activity():
-            db['activities'] = [item for item in db['activities']
-                                if item['key'] != self.key and item['activity_key'] != self.activity_key]
+            DB['activities'] = [item for item in DB['activities']
+                                if item['key'] != self.key and
+                                item['activity_key'] != self.activity_key]
 
             self.message = 'Activity successfully deleted'
             return self
@@ -292,14 +328,18 @@ class AbstractFeatures(object):
 
     def _get_specific_data(self):
         """
-        This method is used to get specific data unit given the key and the username
+        This method is used to get specific data unit given the key and the email
         It is used while creating a bucket activity or updating the bucket
         :return:
         """
         def get_bucket():
+            """
+            Used to get a specific bucket and return it
+            :return: specific_bucket
+            """
             try:
-                self.filtered = [item for item in db['buckets']
-                                 if item['user'] == self.username and item['key'] == self.key]
+                self.filtered = [item for item in DB['buckets']
+                                 if item['user'] == self.email and item['key'] == self.key]
 
                 return self.filtered
 
@@ -307,9 +347,14 @@ class AbstractFeatures(object):
                 return []
 
         def get_activity():
+            """
+            Used to get a specific activity and return it
+            :return: specific_activity
+            """
             try:
-                self.filtered = [item for item in db['activities'] if item['user'] == self.username and
-                                 item['key'] == self.key and item['activity_key'] == self.activity_key]
+                self.filtered = [item for item in DB['activities'] if item['user'] == self.email and
+                                 item['key'] == self.key and
+                                 item['activity_key'] == self.activity_key]
 
                 return self.filtered
 
@@ -353,21 +398,28 @@ class AbstractFeatures(object):
 
 
 class CreateBucket(AbstractFeatures, View):
+    """
+    This function is
+    """
 
     methods = ['GET', 'POST']
 
     def dispatch_request(self):
+        """
+        This method is called with all
+        the arguments from the URL rule.
+        """
 
         def get():
             if 'user' in session.keys() and 'user' in session.keys() is not None:
-                return render_template('create_bucket.html', page='Create Bucket', data=categories)
+                return render_template('create_bucket.html', page='Create Bucket', data=CATEGORIES)
             else:
                 return redirect('/login/')
 
         def post():
-            username = session.get('user')
+            email = session.get('user')
 
-            if not username:
+            if not email:
                 return redirect('/login/')
 
             data = request.form.to_dict()
@@ -376,12 +428,12 @@ class CreateBucket(AbstractFeatures, View):
             value = data.get('category')
             category = ''
 
-            for category_ in categories:
+            for category_ in CATEGORIES:
                 for key, val in category_.items():
                     if key == value:
                         category = val
 
-            data = dict(bucket=True, username=username, bucket_name=bucket_name, category=category,
+            data = dict(bucket=True, email=email, bucket_name=bucket_name, category=category,
                         description=description)
             response = self.create_data(**data)
             if response.message:
@@ -398,16 +450,25 @@ class CreateBucket(AbstractFeatures, View):
 
 
 class ViewBucket(AbstractFeatures, View):
+    """
+    This class implements functionality of viewing the
+    bucket's details.
+    It implements a get request to render the details
+    """
 
     methods = ['GET']
 
     def dispatch_request(self):
+        """
+        This method is called with all
+        the arguments from the URL rule.
+        """
         if 'user' in session.keys() and 'user' in session.keys() is not None:
-            details = self.read_data(username=session.get('user'), bucket=True)
+            details = self.read_data(email=session.get('user'), bucket=True)
             if details:
                 new_details = {}
-                for i, d in enumerate(details):
-                    new_details[i] = d
+                for key_, value_ in enumerate(details):
+                    new_details[key_] = value_
                 return render_template('view_buckets.html', details=new_details, data=True,
                                        page='View Buckets')
             return render_template('view_buckets.html', data=False, page='View Buckets')
@@ -416,10 +477,19 @@ class ViewBucket(AbstractFeatures, View):
 
 
 class UpdateBucket(AbstractFeatures, View):
+    """
+    This class is used to update a bucket.
+    It implements a get request to render the template and
+    a post request to update the bucket
+    """
 
     methods = ['GET', 'POST']
 
     def dispatch_request(self):
+        """
+        This method is called with all
+        the arguments from the URL rule.
+        """
 
         def get():
             unique_key = request.args.get('key')
@@ -428,21 +498,23 @@ class UpdateBucket(AbstractFeatures, View):
                 return redirect('/view_buckets/')
 
             if 'user' in session.keys() and 'user' in session.keys() is not None:
-                data = self.get_specific_data(key=unique_key, username=session.get('user'), bucket=True)
+                data = self.get_specific_data(key=unique_key,
+                                              email=session.get('user'), bucket=True)
                 if data:
                     new_details = {}
-                    for i, d in enumerate(data):
-                        new_details[i] = d
+                    for key_, value_ in enumerate(data):
+                        new_details[key_] = value_
 
-                    return render_template('update_bucket.html', page='Update Bucket', data=new_details,
-                                           categories=categories, unique_key=unique_key)
+                    return render_template(
+                        'update_bucket.html', page='Update Bucket',
+                        data=new_details, categories=CATEGORIES, unique_key=unique_key)
             else:
                 return redirect('/login/')
 
         def post():
-            username = session.get('user')
+            email = session.get('user')
 
-            if not username:
+            if not email:
                 return redirect('/login/')
 
             data = request.form.to_dict()
@@ -452,12 +524,13 @@ class UpdateBucket(AbstractFeatures, View):
             unique_key = data.get('key')
             category = ''
 
-            for category_ in categories:
+            for category_ in CATEGORIES:
                 for key, val in category_.items():
                     if key == value:
                         category = val
 
-            data = dict(bucket=True, username=username, bucket_name=bucket_name, category=category, key=unique_key,
+            data = dict(bucket=True, email=email, bucket_name=bucket_name,
+                        category=category, key=unique_key,
                         description=description)
 
             response = self.update_data(**data)
@@ -476,12 +549,20 @@ class UpdateBucket(AbstractFeatures, View):
 
 
 class AddActivity(AbstractFeatures, View):
+    """
+    This class handles adding activities of a user
+    This method uses a post request to add it.
+    """
     methods = ['POST']
 
     def dispatch_request(self):
-        username = session.get('user')
+        """
+        This method is called with all
+        the arguments from the URL rule.
+        """
+        email = session.get('user')
 
-        if not username:
+        if not email:
             return redirect('/login/')
 
         data = request.form.to_dict()
@@ -493,7 +574,7 @@ class AddActivity(AbstractFeatures, View):
         if not description:
             return make_response(jsonify({'error': 'Please enter your activities'}), 500)
 
-        data = dict(activity=True, username=username, description=description, key=unique_key)
+        data = dict(activity=True, email=email, description=description, key=unique_key)
 
         response = self.create_data(**data)
         if response.message:
@@ -501,21 +582,31 @@ class AddActivity(AbstractFeatures, View):
 
 
 class ViewActivities(AbstractFeatures, View):
+    """
+
+    """
+
     methods = ['GET']
 
     def dispatch_request(self):
+        """
+        This method is called with all
+        the arguments from the URL rule.
+        """
         key = request.args.get('key')
         if not key:
             return redirect('/view_buckets/')
 
         if 'user' in session.keys() and 'user' in session.keys() is not None:
             try:
-                details, bucket_name = self.read_data(username=session.get('user'), activity=True, key=key)
+                details, bucket_name = self.read_data(
+                    email=session.get('user'), activity=True, key=key)
                 new_details = {}
-                for i, d in enumerate(details):
-                    new_details[i] = d
+                for key_, value_ in enumerate(details):
+                    new_details[key_] = value_
 
-                return render_template('view_activities.html', details=new_details, data=True, page='View Buckets',
+                return render_template('view_activities.html',
+                                       details=new_details, data=True, page='View Buckets',
                                        bucket=bucket_name)
 
             except ValueError:
@@ -525,9 +616,18 @@ class ViewActivities(AbstractFeatures, View):
 
 
 class UpdateActivity(AbstractFeatures, View):
+    """
+    This class is used to update activity that will
+    be selected by the user. This class uses two
+    view methods. POST and GET
+    """
     methods = ['GET', 'POST']
 
     def dispatch_request(self):
+        """
+        This method is called with all
+        the arguments from the URL rule.
+        """
         def get():
             unique_key = request.args.get('key')
 
@@ -538,14 +638,15 @@ class UpdateActivity(AbstractFeatures, View):
             activity_key = unique_key[8:]
 
             if 'user' in session.keys() and 'user' in session.keys() is not None:
-                data = self.get_specific_data(key=key, username=session.get('user'), activity=True,
+                data = self.get_specific_data(key=key, email=session.get('user'), activity=True,
                                               activity_key=activity_key)
                 if data:
                     new_details = {}
-                    for i, d in enumerate(data):
-                        new_details[i] = d
+                    for key_, value_ in enumerate(data):
+                        new_details[key_] = value_
 
-                    return render_template('update_activity.html', page='Update Activity', data=new_details,
+                    return render_template('update_activity.html',
+                                           page='Update Activity', data=new_details,
                                            unique_key=key, activity_key=activity_key)
                 else:
                     return render_template('update_activity.html', page='Update Activity')
@@ -553,9 +654,9 @@ class UpdateActivity(AbstractFeatures, View):
                 return redirect('/login/')
 
         def post():
-            username = session.get('user')
+            email = session.get('user')
 
-            if not username:
+            if not email:
                 return redirect('/login/')
 
             data = request.form.to_dict()
@@ -563,7 +664,8 @@ class UpdateActivity(AbstractFeatures, View):
             description = data.get('description')
             activity_key = data.get('activity_key')
 
-            data = dict(activity=True, username=username, key=key, description=description, activity_key=activity_key)
+            data = dict(activity=True, email=email,
+                        key=key, description=description, activity_key=activity_key)
 
             response = self.update_data(**data)
 
@@ -581,13 +683,21 @@ class UpdateActivity(AbstractFeatures, View):
 
 
 class DeleteData(AbstractFeatures, View):
+    """
+    This class is used to delete data when a user selects it
+    This data includes activities and buckets
+    """
 
-    methods = ['POST']
+    methods = ['DELETE']
 
     def dispatch_request(self):
-        username = session.get('user')
+        """
+        This method is called with all
+        the arguments from the URL rule.
+        """
+        email = session.get('user')
 
-        if not username:
+        if not email:
             return redirect('/login/')
 
         data = request.form.to_dict()
@@ -597,9 +707,14 @@ class DeleteData(AbstractFeatures, View):
         activity_key = data.get('activity_key')
 
         if not key:
-            return make_response(jsonify({'error': 'Please select a specific bucket or activity'}), 500)
+            return make_response(jsonify(
+                {'error': 'Please select a specific bucket or activity'}), 500)
 
         def delete_bucket():
+            """
+            Function that handles delete bucket
+            :return: json response
+            """
             values = dict(key=key, bucket=True)
             response = self.delete_data(**values)
 
@@ -607,6 +722,10 @@ class DeleteData(AbstractFeatures, View):
                 return make_response(jsonify({'success': 'Bucket deleted successfully'}))
 
         def delete_activity():
+            """
+            Function that handles delete activity
+            :return: json response
+            """
             values = dict(key=key, activity=True, activity_key=activity_key)
             response = self.delete_data(**values)
 
