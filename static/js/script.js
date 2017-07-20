@@ -107,8 +107,8 @@ function createBucket(value){
         data: {bucket_name:bucket_name, description:description, category:category},
         type: 'POST',
         success: function(){
-            swal('Success!','Bucket created successfully', 'success');
             if (value === 1){
+                swal('Success!','Bucket created successfully', 'success');
                 window.location.href = '/view_buckets/';
             }
             else if (value === 2){
@@ -171,7 +171,7 @@ function deleteBucket(key){
     $.ajax({
         url: '/delete/',
         data: {key:key, bucket:true},
-        type: 'POST',
+        type: 'DELETE',
         dataType: 'text',
         success: function (response) {
             var json = JSON.parse(response);
@@ -186,7 +186,10 @@ function deleteBucket(key){
     });
 }
 
-function addActivity(key){
+function addActivity(){
+    var key = $("#key").val();
+    var page = $("#page").val();
+
     swal({
         title: 'Add Activity',
         input: 'textarea',
@@ -213,7 +216,12 @@ function addActivity(key){
             dataType: 'text',
             success: function(response){
                 var json = JSON.parse(response);
-                swal('Success!', json.success, 'success');
+                if (page){
+                    window.location.reload();
+                }
+                else{
+                    swal('Success!', json.success, 'success');
+                }
                 return 0;
             }
         })
@@ -242,7 +250,7 @@ function deleteActivity(activity_key){
     $.ajax({
         url: '/delete/',
         data: {key:key, activity:true, activity_key:activity_key},
-        type: 'POST',
+        type: 'DELETE',
         dataType: 'text',
         success: function (response) {
             var json = JSON.parse(response);

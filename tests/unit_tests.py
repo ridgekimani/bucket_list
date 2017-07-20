@@ -1,16 +1,33 @@
+"""
+This module is for testing some of the
+implementations that will be used through out the app
+"""
+
 import datetime
 import unittest
-from .. app import db, app
+from .. app import DB, app
 
 from flask_testing import TestCase
 
 
 def load_data():
-    data = {'test@user.com': 'test_password',
-            'buckets': [{'user': 'test@user.com', 'bucket_name': 'test_bucket', 'description': 'Test description',
-                        'category': 'Health', 'created': datetime.date(2017, 7, 19), 'key': '00000000'}],
-            'activities': [{'user': 'test@user.com', 'description': 'Test activity',
-                           'created': datetime.date(2017, 7, 19), 'activity_key': '11111111', 'key': '00000000'}]}
+    """
+    This function is used to load data that will be used for the tests
+    :return:
+    """
+    data = {
+        'test@user.com': 'test_password',
+        'buckets': [
+            {'user': 'test@user.com', 'bucket_name': 'test_bucket',
+             'description': 'Test description', 'category': 'Health',
+             'created': datetime.date(2017, 7, 19), 'key': '00000000'}
+        ],
+        'activities': [
+            {'user': 'test@user.com', 'description': 'Test activity',
+             'created': datetime.date(2017, 7, 19),
+             'activity_key': '11111111', 'key': '00000000'}
+        ]
+    }
 
     return data
 
@@ -20,11 +37,15 @@ class TestLoginTestCases(TestCase):
     This class is used to test cases that can an occur while trying to login
     This includes:
         wrong password
-        incorrect username
+        incorrect email
     """
 
     def create_app(self):
-        db['test@email.com'] = 'test_password'
+        """
+        The initial app configuration
+        :return: app
+        """
+        DB['test@email.com'] = 'test_password'
         return app
 
     def test_home_page_redirect(self):
@@ -32,7 +53,6 @@ class TestLoginTestCases(TestCase):
         Tests that home page redirects to login
         :return: redirect
         """
-        print("-----Test that homepage redirects to login-----------")
         response = self.client.get('/')
         self.assertEqual(response.status_code, 302)
 
@@ -41,7 +61,6 @@ class TestLoginTestCases(TestCase):
         Tests that the login get request works
         :return: 200
         """
-        print("-----Test login request returns a 200 status---------")
         response = self.client.get('/login/')
         self.assertEqual(response.status_code, 200)
 
@@ -50,26 +69,29 @@ class TestLoginTestCases(TestCase):
         Tests that correct credentials returns a success json response
         :return: success
         """
-        print("--------------Test login with correct credentials------------")
-        response = self.client.post('/login/', data=dict(email='test@email.com', password='test_password'))
+        response = self.client.post('/login/',
+                                    data=dict(email='test@email.com', password='test_password'))
         self.assertEqual(response.json, dict(success='Authenticated successfully'))
 
-    def test_login_with_wrong_username(self):
+    def test_login_with_wrong_email(self):
         """
-        Test that wrong username returns a error json response
+        Test that wrong email returns a error json response
         :return: error
         """
-        print("----------Test login with wrong username------------")
-        response = self.client.post('/login/', data=dict(email='test_wrong_username', password='test_password'))
-        self.assertEqual(response.json, dict(error='Username not found. Please sign up to continue'))
+        response = self.client.post('/login/',
+                                    data=dict(email='test_wrong_email',
+                                              password='test_password'))
+        self.assertEqual(response.json,
+                         dict(error='Email not found. Please sign up to continue'))
 
     def test_login_with_wrong_password(self):
         """
         Test that wrong password returns an error json response
         :return: error
         """
-        print("----------Test login with wrong password------------")
-        response = self.client.post('/login/', data=dict(email='test@email.com', password='test_wrong_password'))
+        response = self.client.post('/login/',
+                                    data=dict(email='test@email.com',
+                                              password='test_wrong_password'))
         self.assertEqual(response.json, dict(error='Incorrect password'))
 
 
@@ -78,10 +100,14 @@ class TestLogOutTestCase(unittest.TestCase):
     This test class tests the logout functionality
     """
     def setUp(self):
-        db['test@email.com'] = 'test_password'
+        """
+        The initial app configuration
+        :return: app
+        """
+        DB['test@email.com'] = 'test_password'
         self.app = app.test_client()
-        with self.app as c:
-            with c.session_transaction() as sess:
+        with self.app as app_:
+            with app_.session_transaction() as sess:
                 sess['user'] = 'test@email.com'
 
     def test_logout_test_case(self):
@@ -89,7 +115,6 @@ class TestLogOutTestCase(unittest.TestCase):
         The only test case that tests if a user can log out
         :return: 200
         """
-        print("----------Test if a user can log out------------")
         response = self.app.get('/logout/')
         self.assertEqual(response.status_code, 302)
 
@@ -99,14 +124,18 @@ class TestSignUpTestCases(TestCase):
     """
     This class is used to test cases that can an occur while trying to sign up
     This includes:
-        existing username
+        existing email
         wrong passwords
         unfilled details
 
     """
 
     def create_app(self):
-        db['test@email.com'] = 'test_password'
+        """
+        The initial app configuration
+        :return: app
+        """
+        DB['test@email.com'] = 'test_password'
         return app
 
     def test_signup_get_request(self):
@@ -114,7 +143,6 @@ class TestSignUpTestCases(TestCase):
         Test signup url returns a 200 status code for get request
         :return:
         """
-        print("-----------Test that signup page returns a 200 status---------------")
         response = self.client.get('/register/')
         self.assertEqual(response.status_code, 200)
 
@@ -123,9 +151,10 @@ class TestSignUpTestCases(TestCase):
         Test signup account with data that has not been used and is clean
         :return: success
         """
-        print("---------Test for signup with unique and clean data---------------")
-        response = self.client.post('/register/', data=dict(email='test@em.com', password='test_password',
-                                                            confirm_password='test_password'))
+        response = self.client.post('/register/',
+                                    data=dict(email='test@em.com',
+                                              password='test_password',
+                                              confirm_password='test_password'))
         self.assertEqual(response.json, {'success': 'Account created successfully'})
 
     def test_signup_with_existing_data(self):
@@ -133,46 +162,25 @@ class TestSignUpTestCases(TestCase):
         Test signup account with existing data
         :return: error
         """
-        print("---------Test for signup with existing username---------------")
-        response = self.client.post('/register/', data=dict(email='test@email.com', password='test_password',
-                                                            confirm_password='test_password'))
-        self.assertEqual(response.json, {'error': 'User already exists with that username'})
-
-    def test_signup_with_wrong_confirm_password(self):
-        """
-        Test signup account with passwords that don't match
-        :return: false
-        """
-        print("---------Test for signup with wrong confirm password---------------")
-        response = self.client.post('/register/', data=dict(email='test_use1',
-                                                            password='test_password', confirm_password='test_pass'))
-        self.assertEqual(response.json, {'error': 'Passwords do not match'})
-
-    def test_signup_post_request_with_no_data(self):
-        """
-        Test that signup with no data will raise errors
-        :return: false
-        """
-        print("-------------Test signup post request with no data raises errors----------")
-        response = self.client.post('/register/', data={})
-        self.assertEqual(response.json, {'error': 'Please enter your email'})
-        response = self.client.post('/register/', data={'email': 'test_use1'})
-        self.assertEqual(response.json, {'error': 'Please enter your password'})
-        response = self.client.post('/register/', data={'email': 'test_use1', 'password': 'test_password'})
-        self.assertEqual(response.json, {'error': 'Please confirm your password'})
+        response = self.client.post('/register/',
+                                    data=dict(email='test@email.com',
+                                              password='test_password',
+                                              confirm_password='test_password'))
+        self.assertEqual(response.json, {'error': 'User already exists with that email'})
 
     def test_signup_with_invalid_data(self):
         """
         Test signup with data that will be invalidated.
-        This includes short username, short password
+        This includes short email, short password
         :return: false
         """
-        print("------------Test for signup with short username----------------")
         response = self.client.post('/register/', data={'email': 'kim'})
-        self.assertEqual(response.json, {'error': 'Username too short. Please enter more than 4 characters'})
-        print("------------Test for signup with short password ----------------")
-        response = self.client.post('/register/', data={'email': 'test@email.com', 'password': 'pass'})
-        self.assertEqual(response.json, {'error': 'Please enter more than 8 characters for your password'})
+        self.assertEqual(response.json, {'error': 'email too short.'
+                                                  ' Please enter more than 4 characters'})
+        response = self.client.post('/register/', data={'email': 'test@email.com',
+                                                        'password': 'pass'})
+        self.assertEqual(response.json, {'error': 'Please enter more than '
+                                                  '8 characters for your password'})
 
 
 class TestBucketCRUDOperations(unittest.TestCase):
@@ -186,28 +194,31 @@ class TestBucketCRUDOperations(unittest.TestCase):
     """
     def setUp(self):
         self.app = app.test_client()
-        with self.app as c:
-            with c.session_transaction() as sess:
+        with self.app as app_:
+            with app_.session_transaction() as sess:
                 sess['user'] = 'test@user.com'
 
-        db['buckets'] = [{'user': 'test@user.com', 'bucket_name': 'test_bucket', 'description': 'Test description',
-                          'category': 'Health', 'created': datetime.date(2017, 7, 19), 'key': '00000000'}]
+        DB['buckets'] = [
+            {'user': 'test@user.com', 'bucket_name': 'test_bucket',
+             'description': 'Test description',
+             'category': 'Health', 'created': datetime.date(2017, 7, 19), 'key': '00000000'}
+        ]
 
-        db['activities'] = [{'user': 'test@user.com', 'description': 'Test activity',
-                             'created': datetime.date(2017, 7, 19), 'activity_key': '11111111', 'key': '00000000'}]
+        DB['activities'] = [
+            {'user': 'test@user.com', 'description': 'Test activity',
+             'created': datetime.date(2017, 7, 19), 'activity_key': '11111111', 'key': '00000000'}
+        ]
 
     def test_create_bucket_test_cases(self):
         """
         Test for both post and get request for the create bucket view
         :return: 200
         """
-        print('-------_Test for create get request------------')
         response = self.app.get('/create_bucket/')
         self.assertEqual(response.status_code, 200)
 
-        data = dict(bucket=True, username='test@email.com', bucket_name='test_bucket', category='6',
+        data = dict(bucket=True, email='test@email.com', bucket_name='test_bucket', category='6',
                     description='Test description')
-        print('--------Test for create post request------------')
         response = self.app.post('/create_bucket/', data=data)
         self.assertEqual(response.status_code, 200)
 
@@ -216,7 +227,6 @@ class TestBucketCRUDOperations(unittest.TestCase):
         Test the get request for the read bucket view
         :return: 200
         """
-        print("------------Test for view bucket -----------")
         response = self.app.get('/view_buckets/')
         self.assertEqual(response.status_code, 200)
 
@@ -225,10 +235,8 @@ class TestBucketCRUDOperations(unittest.TestCase):
         Test for the post and get request for the update bucket view
         :return: 200
         """
-        print("----------Test for update bucket get request without any params----------")
         response = self.app.get('/update_bucket/')
         self.assertEqual(response.status_code, 302)
-        print("---------Test for update bucket get with params------------")
         response = self.app.get('/update_bucket/?key=00000000')
         self.assertEqual(response.status_code, 200)
         data = {'bucket_name': 'Test bucket', 'key': '000000'}
@@ -240,8 +248,7 @@ class TestBucketCRUDOperations(unittest.TestCase):
         Test for the post request for the delete view
         :return:
         """
-        print("-----------Test for delete bucket ---------------")
-        response = self.app.post('/delete/', data=dict(key='00000000', bucket='true'))
+        response = self.app.delete('/delete/', data=dict(key='00000000', bucket='true'))
         self.assertEqual(response.status_code, 200)
 
 
@@ -256,19 +263,21 @@ class TestActivityCRUDOperations(unittest.TestCase):
     """
     def setUp(self):
         self.app = app.test_client()
-        with self.app as c:
-            with c.session_transaction() as sess:
+        with self.app as app_:
+            with app_.session_transaction() as sess:
                 sess['user'] = 'test@user.com'
 
-        db['activities'] = [{'user': 'test@user.com', 'description': 'Test activity',
-                            'created': datetime.date(2017, 7, 19), 'activity_key': '11111111', 'key': '00000000'}]
+        DB['activities'] = [
+            {'user': 'test@user.com', 'description': 'Test activity',
+             'created': datetime.date(2017, 7, 19),
+             'activity_key': '11111111', 'key': '00000000'}
+        ]
 
     def test_create_activity_test_cases(self):
         """
         Test for the create activity post request
         :return: 200
         """
-        print("----------Test for create activity post request----------")
         data = dict(activity=True, text='Test activity', key='00000000')
         response = self.app.post('/add_activity/', data=data)
         self.assertEqual(response.status_code, 200)
@@ -278,7 +287,6 @@ class TestActivityCRUDOperations(unittest.TestCase):
         Test for the read activity get request
         :return: 200
         """
-        print("--------Test for read activity get request----------")
         response = self.app.get("/view_activities/?key='00000000'")
         self.assertEqual(response.status_code, 200)
 
@@ -287,9 +295,9 @@ class TestActivityCRUDOperations(unittest.TestCase):
         Test for the update activity post and get request
         :return: 200
         """
-        print("--------Test for update activity get request-------------")
-        print("------------Test for activity post request-------------")
         data = dict(description='Awesome description', key='00000000', activity_key='11111111')
+        response = self.app.get('/update_activity/?key=0000000011111111')
+        self.assertEqual(response.status_code, 200)
         response = self.app.post('/update_activity/', data=data)
         self.assertEqual(response.status_code, 200)
 
@@ -298,10 +306,12 @@ class TestActivityCRUDOperations(unittest.TestCase):
         Test for the delete post request
         :return:
         """
-        print("----------Test for delete activity -------------")
         data = {'key': '00000000', 'activity_key': '11111111', 'activity': 'true'}
-        response = self.app.post('/delete/', data=data)
+        response = self.app.delete('/delete/', data=data)
         self.assertEqual(response.status_code, 200)
+        data.pop('key')
+        response = self.app.delete('/delete/', data=data)
+        self.assertEqual(response.status_code, 500)
 
 
 class TestBucketCRUDOperationsWithNoSessions(TestCase):
@@ -315,6 +325,10 @@ class TestBucketCRUDOperationsWithNoSessions(TestCase):
     """
 
     def create_app(self):
+        """
+        The initial app configuration
+        :return: app
+        """
         return app
 
     def test_create_bucket(self):
@@ -322,12 +336,10 @@ class TestBucketCRUDOperationsWithNoSessions(TestCase):
         Test create bucket post and get redirects
         :return: 302
         """
-        print('-------_Test for create get request redirects------------')
         response = self.client.get('/create_bucket/')
         self.assertEqual(response.status_code, 302)
-        data = dict(bucket=True, username='test@email.com', bucket_name='test_bucket', category='6',
+        data = dict(bucket=True, email='test@email.com', bucket_name='test_bucket', category='6',
                     description='Test description')
-        print('--------Test for create post request')
         response = self.client.post('/create_bucket/', data=data)
         self.assertEqual(response.status_code, 302)
 
@@ -336,7 +348,6 @@ class TestBucketCRUDOperationsWithNoSessions(TestCase):
         Test view bucket get redirects
         :return: 302
         """
-        print("------------Test for view bucket redirects-----------")
         response = self.client.get('/view_buckets/')
         self.assertEqual(response.status_code, 302)
 
@@ -345,7 +356,6 @@ class TestBucketCRUDOperationsWithNoSessions(TestCase):
         Test update bucket post and get redirects
         :return: 302
         """
-        print("----------Test for update bucket get request redirects----------")
         response = self.client.get('/update_bucket/')
         self.assertEqual(response.status_code, 302)
 
@@ -354,8 +364,7 @@ class TestBucketCRUDOperationsWithNoSessions(TestCase):
          Test delete bucket post and get redirects
          :return: 302
          """
-        print("---------Test for delete bucket post redirects------------")
-        response = self.client.post('/delete/', data={'bucket': 'true'})
+        response = self.client.delete('/delete/', data={'bucket': 'true'})
         self.assertEqual(response.status_code, 302)
 
 
@@ -369,6 +378,10 @@ class TestActivityCRUDOperationsWithNoSessions(TestCase):
             delete ACTIVITY
     """
     def create_app(self):
+        """
+        The initial app configuration
+        :return: app
+        """
         return app
 
     def test_create_activity(self):
@@ -376,7 +389,6 @@ class TestActivityCRUDOperationsWithNoSessions(TestCase):
         Test create activity post and get request redirects
         :return: 302
         """
-        print("-----------Test create activity post request redirects-----------")
         response = self.client.post('/add_activity/', data={'description': 'test'})
         self.assertEqual(response.status_code, 302)
 
@@ -385,7 +397,6 @@ class TestActivityCRUDOperationsWithNoSessions(TestCase):
         Test view activity get request redirects
         :return: 302
         """
-        print('------Test view activity get request redirects----------')
         response = self.client.get('/view_activities/?key=567890')
         self.assertEqual(response.status_code, 302)
 
@@ -394,10 +405,8 @@ class TestActivityCRUDOperationsWithNoSessions(TestCase):
         Test update activity post and get request redirects
         :return: 302
         """
-        print('---------Test update activity get request redirects-----------')
         response = self.client.get('/update_activity/?key=67890')
         self.assertEqual(response.status_code, 302)
-        print('---------Test update activity post request redirects-----------')
         response = self.client.post('/update_activity/', data={'description': 'test'})
         self.assertEqual(response.status_code, 302)
 
@@ -406,8 +415,7 @@ class TestActivityCRUDOperationsWithNoSessions(TestCase):
         Test delete activity post request redirects
         :return: 302
         """
-        print('-----------Test delete activity post request------------')
-        response = self.client.post('/delete/', data={'activity': 'true'})
+        response = self.client.delete('/delete/', data={'activity': 'true'})
         self.assertEqual(response.status_code, 302)
 
 if __name__ == '__main__':
