@@ -296,6 +296,8 @@ class TestActivityCRUDOperations(unittest.TestCase):
         :return: 200
         """
         data = dict(description='Awesome description', key='00000000', activity_key='11111111')
+        response = self.app.get('/update_activity/?key=0000000011111111')
+        self.assertEqual(response.status_code, 200)
         response = self.app.post('/update_activity/', data=data)
         self.assertEqual(response.status_code, 200)
 
@@ -307,6 +309,9 @@ class TestActivityCRUDOperations(unittest.TestCase):
         data = {'key': '00000000', 'activity_key': '11111111', 'activity': 'true'}
         response = self.app.delete('/delete/', data=data)
         self.assertEqual(response.status_code, 200)
+        data.pop('key')
+        response = self.app.delete('/delete/', data=data)
+        self.assertEqual(response.status_code, 500)
 
 
 class TestBucketCRUDOperationsWithNoSessions(TestCase):
