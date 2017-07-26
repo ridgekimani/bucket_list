@@ -15,7 +15,7 @@ from flask.views import View
 
 app = Flask(__name__)
 
-app.secret_key = 'this is a secret'
+app.secret_key = '1db2650244d04d998ef3ff97469e85b4'
 
 DB = dict()
 
@@ -56,14 +56,14 @@ def register():
 
         if len(email) < 5:
             return make_response(jsonify({'error': 'email too short. '
-                                                   'Please enter more than 4 characters'}), 500)
+                                                   'Please enter more than 4 characters'}), 400)
 
         if len(password) < 8:
             return make_response(jsonify({'error': 'Please enter more than '
-                                                   '8 characters for your password'}), 500)
+                                                   '8 characters for your password'}), 400)
 
         if email in DB.keys():
-            return make_response(jsonify({'error': 'User already exists with that email'}), 500)
+            return make_response(jsonify({'error': 'User already exists with that email'}), 409)
 
         DB[email] = password
         session['user'] = email
@@ -97,7 +97,7 @@ def login():
                     session['user'] = email
                     return jsonify({'success': 'Authenticated successfully'})
                 else:
-                    return make_response(jsonify({'error': 'Incorrect password'}), 500)
+                    return make_response(jsonify({'error': 'Incorrect password'}), 401)
 
 
 @app.route('/logout/', methods=['GET'])
