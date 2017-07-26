@@ -5,7 +5,7 @@ implementations that will be used through out the app
 
 import datetime
 import unittest
-from .. app import DB, app
+from app.app import DB, app
 
 from flask_testing import TestCase
 
