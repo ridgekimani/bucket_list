@@ -30,10 +30,10 @@ CATEGORIES = [
 @app.route('/', methods=['GET'])
 def home():
     """
-    Redirects to login
+    Redirects to register
     :return:
     """
-    return redirect('/login/')
+    return redirect('/register/')
 
 
 @app.route('/register/', methods=['GET', 'POST'])
